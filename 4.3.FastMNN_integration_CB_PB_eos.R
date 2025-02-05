@@ -5,7 +5,7 @@
 setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.Packages_and_functions.R")
+source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
 
 ##### read in object 
 CB <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/Cord_blood_anno.rds")

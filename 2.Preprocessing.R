@@ -4,7 +4,8 @@
 setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.Packages_and_functions.R")
+source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
+source("~/Projects/Neonatal_eosinophils/1.2.Functions_preprocessing.R")
 
 ##### NEO P14 eosinophils 
 ### colon and small intestine 

@@ -5,7 +5,10 @@
 setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.Packages_and_functions.R")
+source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
+source("~/Projects/Neonatal_eosinophils/1.2.Functions_preprocessing.R")
+source("~/Projects/Neonatal_eosinophils/1.3.Functions_annotation.R")
+source("~/Projects/Neonatal_eosinophils/1.4.Functions_DEGs.R")
 
 ##### take BM data from Gurtner et al, and extract precursors from the BM 
 adult_bm_all <- create_seurat_from_condition_old_WTA_version(

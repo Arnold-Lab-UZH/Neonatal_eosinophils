@@ -4,7 +4,8 @@
 setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.Packages_and_functions.R")
+source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
+source("~/Projects/Neonatal_eosinophils/1.6.Functions_signature_scores.R")
 
 ##### load objects 
 eos <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_blood_BM_spleen_LT.rds")

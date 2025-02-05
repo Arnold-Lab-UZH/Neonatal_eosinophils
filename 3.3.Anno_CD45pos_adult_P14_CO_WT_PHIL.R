@@ -4,7 +4,8 @@
 setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.Packages_and_functions.R")
+source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
+source("~/Projects/Neonatal_eosinophils/1.3.Functions_annotation.R")
 
 ##### load  object 
 obj <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/Adult_and_Neo_P14_CD45enr_colon_WT_PHIL.rds")
@@ -269,3 +270,4 @@ subCl <- subset(subCl, idents = c("act_mig_DCs", "CD4_T","CD8_CCR7_T","CD8T_NKT"
 
 ##### save annotated object 
 saveRDS(obj, "/data/khandl/Neonatal_eosinophils/seurat_objects/Adult_and_Neo_P14_CD45enr_colon_WT_PHIL_anno.rds")
+

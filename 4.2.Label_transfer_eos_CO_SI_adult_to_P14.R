@@ -5,7 +5,8 @@
 setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.Packages_and_functions.R")
+source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
+source("~/Projects/Neonatal_eosinophils/1.4.Functions_DEGs.R")
 
 ##### read in R objects 
 adult_eosSS <- readRDS("/data/khandl/common/Nature_paper_data/eosinophils_steadystate.rds")
