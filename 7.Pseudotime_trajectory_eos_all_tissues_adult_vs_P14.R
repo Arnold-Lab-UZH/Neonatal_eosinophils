@@ -32,10 +32,40 @@ obj <- FindNeighbors(obj, reduction = "integrated.mnn", dims = 1:5)
 obj <- FindClusters(obj, resolution = 0.5, cluster.name = "mnn.clusters", algorithm = 2)
 obj <- RunUMAP(obj, reduction = "integrated.mnn", dims = 1:5, reduction.name = "umap")
 DimPlot(obj,reduction = "umap",group.by = "age",raster=FALSE)
-p <- DimPlot(obj,reduction = "umap",group.by = "annotation",raster=FALSE, cols = c("#10A069","#E7E622", "#26DFED","#E88A1A", "#E81818" ))
+p <- DimPlot(obj,reduction = "umap",group.by = "annotation",raster=FALSE, cols = c("#10A069","#10A069", "#26DFED","#E88A1A", "#E81818" ))
 ggsave(paste0("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/umap_annotated.svg"), width = 8, height = 5, plot = p)
 
 obj <- JoinLayers(obj)
+
+## plot marker genes 
+p <- FeaturePlot(obj, features = "Cd80", reduction = "umap", pt.size = 0.1) + scale_color_gradientn( colours = c('grey', 'darkred'),  limits = c(0,5))
+ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/Cd80.svg", width = 8, height = 5, plot = p)
+p <- FeaturePlot(obj, features = "Cd274", reduction = "umap", pt.size = 0.1) + scale_color_gradientn( colours = c('grey', 'darkred'),  limits = c(0,5))
+ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/Cd27.svg", width = 8, height = 5, plot = p)
+p <- FeaturePlot(obj, features = "Ear1", reduction = "umap", pt.size = 0.1) + scale_color_gradientn( colours = c('grey', 'darkred'),  limits = c(0,5))
+ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/Ear1.svg", width = 8, height = 5, plot = p)
+p <- FeaturePlot(obj, features = "Epx", reduction = "umap", pt.size = 0.1) + scale_color_gradientn( colours = c('grey', 'darkred'),  limits = c(0,5))
+ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/Epx.svg", width = 8, height = 5, plot = p)
+
+## degs from only the neonatal dataset 
+Idents(obj) <- "age"
+sub <- subset(obj, idents = "NEO_P14")
+
+current.cluster.ids <- c("basal eosinophils","intestinal eosinophils","immature eosinophils","eosinophil progenitors","circulating eosinophils")
+new.cluster.ids <-  c("basal-like eosinophils","intestinal eosinophils","immature eosinophils","eosinophil progenitors","basal-like eosinophils")
+sub$annotation <- plyr::mapvalues(x = sub$annotation, from = current.cluster.ids, to = new.cluster.ids)
+
+sub <- NormalizeData(sub, normalization.method = "LogNormalize", scale.factor = 10000,margin = 1, assay = "RNA")
+Idents(sub) <- "annotation"
+markers <- FindAllMarkers(object = sub, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, assay = "RNA", slot = "data")
+
+top10 <- unique(as.data.frame((markers %>% group_by(cluster) %>% top_n(n =10, wt = avg_log2FC)))$gene)
+
+Idents(sub) <- "annotation"
+p <- DotPlot(sub, features = top10,dot.scale = 10, scale = FALSE, assay = "RNA",cols = c("white","darkred")) + 
+  theme(legend.title = element_text(size = 20), legend.text = element_text(size = 20)) + 
+  theme(title = element_text(size = 20))+ theme(axis.text = element_text(size = 10)) + theme(axis.text.x = element_text(angle = 45)) 
+ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/DEGs_neo.svg", width = 20, height = 6, plot = p)
 
 ##### Follow the condiment workflow 
 # following this vignette: https://hectorrdb.github.io/condimentsPaper/articles/TGFB.html
@@ -106,6 +136,7 @@ sling <- fitGAM(counts = sling, nknots = 5,
                 conditions =conditions, parallel = T, BPPARAM = BPPARAM,genes = genes)
 
 saveRDS(sling, "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_blood_BM_spleen_LT_pseutodime.rds")
+sling <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_blood_BM_spleen_LT_pseutodime.rds")
 
 ## differential expresssion between conditions
 condRes <- conditionTest(sling, l2fc = log2(2))
@@ -136,7 +167,7 @@ for (i in goi) {
 ## plot all genes in hetmap 
 # based on mean smoother
 yhatSmooth <- 
-  predictSmooth(sling, gene = conditionGenes, nPoints = 50, tidy = FALSE) %>%
+  predictSmooth(sling, gene = condRes_only_sig$gene, nPoints = 50, tidy = FALSE) %>%
   log1p()
 yhatSmoothScaled <- t(apply(yhatSmooth,1, scales::rescale))
 
