@@ -47,6 +47,18 @@ ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/Ear1.svg", width
 p <- FeaturePlot(obj, features = "Epx", reduction = "umap", pt.size = 0.1) + scale_color_gradientn( colours = c('grey', 'darkred'),  limits = c(0,5))
 ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/Epx.svg", width = 8, height = 5, plot = p)
 
+current.cluster.ids <- c("basal eosinophils","intestinal eosinophils","immature eosinophils","eosinophil progenitors","circulating eosinophils")
+new.cluster.ids <-  c("basal-like eosinophils","intestinal eosinophils","immature eosinophils","eosinophil progenitors","basal-like eosinophils")
+obj$annotation <- plyr::mapvalues(x = obj$annotation, from = current.cluster.ids, to = new.cluster.ids)
+
+Idents(obj) <- "annotation"
+p <- VlnPlot(obj, features = "Cd274", pt.size = 0,cols = c("#E88A1A","#10A069", "#26DFED", "#E81818" ))
+ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/vln_cd274.svg", width = 8, height = 5, plot = p)
+
+p <- VlnPlot(obj, features = "Cd80",pt.size = 0, cols = c("#E88A1A","#10A069", "#26DFED", "#E81818" ))
+ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/vln_cd80.svg", width = 8, height = 5, plot = p)
+
+
 ## degs from only the neonatal dataset 
 Idents(obj) <- "age"
 sub <- subset(obj, idents = "NEO_P14")

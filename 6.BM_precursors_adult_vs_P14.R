@@ -166,7 +166,7 @@ GMP <- subset(obj, idents = "Granulocytic_progenitor")
 MPP <- subset(obj, idents = "Multipotntial_progenitor")
 
 Idents(GMP) <- "condition"
-p <- DotPlot(GMP, features = c("Prg2","Prg3",  "Epx", "Ear6", "Ear1", "Ear2"),scale = FALSE,cols = c("lightblue","darkred"), dot.scale = 15)
+p <- DotPlot(GMP, features = c("Prg2","Prg3",  "Epx", "Ear6", "Ear1", "Ear2"),scale = FALSE,cols = c("lightblue","darkred"), dot.scale = 15) 
 ggsave("/scratch/khandl/Neonatal_eosinophils/figures/BM_GMP_MMP/GMP_granulogenesis_dotplot.svg", width = 8, height = 5, plot = p)
 
 Idents(MPP) <- "condition"

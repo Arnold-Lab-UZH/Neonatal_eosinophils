@@ -64,7 +64,7 @@ markers <- c("Epcam","Krt8","Krt18","Guca2a","Cldn3", #epithelial 5
 )
 
 heatmap_goi_coi(obj, "seurat_clusters",markers,"SCT", c("epithelial","StemTA","Colonocytes1","Colonocytes2","Goblet","TuftEE",
-                                                 "Neurons","Glial","EEC","Paneth"), c(5,4,4,3,4,4,5,5,4,2),   
+                                                        "Neurons","Glial","EEC","Paneth"), c(5,4,4,3,4,4,5,5,4,2),   
                 c("#EF0A3C",  "#EF0AA3","#DE0AEF",  "#680AEF","#0A41EF",  "#0ADFEF", "#0AEF97",  "#0AEF40","#5FEF0A","#EF0AA3"),
                 c(epithelial="#EF0A3C", StemTA= "#EF0AA3",Colonocytes1="#DE0AEF", Colonocytes2= "#680AEF",Goblet="#0A41EF", 
                   TuftEE= "#0ADFEF",Neurons="#0AEF97", Glial= "#0AEF40",EEC="#5FEF0A",Paneth= "#EF0AA3"),F,F)
@@ -110,3 +110,233 @@ ggsave("/scratch/khandl/Neonatal_eosinophils/figures/DotPlot_markers_CD45neg_neo
 
 ##### save object 
 saveRDS(obj, "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_CD45neg_colon_WT_PHIL_anno.rds")
+obj <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_CD45neg_colon_WT_PHIL_anno.rds")
+
+##### refine annotation based on Brügger et al https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.3001032
+markers <- c("Epcam","Lrg5","Axin2", "Mki67","Atoh1","Muc2", "Reg4", "Chga","Chgb", 
+             "Krt19","Guca2a","Alpi", "S100b", "Rgs5","Pecam1","Myh11","Acta2","Vim","Col1a1","Gli1","Foxl1","Cd34","Cd90","Pdgfra"
+)
+Idents(obj) <- "annotation"
+p <- DotPlot(obj, features = markers, scale = TRUE,cols = c("white","darkred"), dot.scale = 5) + theme(axis.text.x = element_text(angle = 90)) 
+#ggsave("/scratch/khandl/Neonatal_eosinophils/figures/DotPlot_markers_CD45neg_neo_P14_annotated.svg", width = 8, height = 5, plot = p)
+
+### rename 
+current.cluster.ids <- c("SMCs","Colonocytes","Fibroblasts","TA","Goblet","Endothelial","Myofibroblasts","Pericytes","EECs")
+new.cluster.ids <- c("Stromal","Enterocytes","Stromal","TA","Goblet_Reg4","Endothelial","Stromal","Pericytes","EECs")
+obj$annotation1 <- plyr::mapvalues(x = obj$annotation, from = current.cluster.ids, to = new.cluster.ids)
+
+DimPlot(obj, group.by = "annotation1",label = TRUE, label.size = 5)
+
+#Pericytes 
+FeaturePlot(obj, features = "Rgs5")
+
+### subcluster TA 
+Idents(obj) <- "annotation1"
+subCl <- FindSubCluster(obj,cluster = "TA",graph.name = "SCT_snn", 
+                        subcluster.name = "sub.cluster",resolution = 0.1)
+DimPlot(subCl, label = TRUE, group.by = "sub.cluster")
+
+Idents(subCl) <- "sub.cluster"
+sub_celltype <- subset(subCl,idents = c("TA_0","TA_1","TA_2"))
+DimPlot(sub_celltype, label = TRUE, group.by = "sub.cluster", label.size = 5)
+DimPlot(sub_celltype ,label = TRUE, group.by = "sub.cluster", split.by = "condition")
+
+VlnPlot(sub_celltype, features = "nFeature_RNA")
+VlnPlot(sub_celltype, features = "percent.mt")
+
+FeaturePlot(sub_celltype, features = c("Lgr5","Epcam","Axin2","Mki67")) 
+
+DotPlot(sub_celltype, features = c("Lgr5","Epcam","Axin2","Mki67"),dot.scale = 6, scale = FALSE, assay = "RNA",cols = c("white","darkred")) + 
+  theme(legend.title = element_text(size = 20), legend.text = element_text(size = 20)) + 
+  theme(title = element_text(size = 20))+ theme(axis.text = element_text(size = 10)) + theme(axis.text.x = element_text(angle = 90)) 
+
+DefaultAssay(sub_celltype) <- "RNA"
+markers <- FindAllMarkers(object = sub_celltype, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, slot = "data")
+View(markers %>% group_by(cluster) %>% top_n(n =10, wt = avg_log2FC))
+
+# rename
+current.cluster.ids <- c("EECs","Endothelial","Enterocytes","Goblet_Reg4","Pericytes", "Stromal","TA_0","TA_1","TA_2")
+new.cluster.ids <- c("EECs","Endothelial","Enterocytes","Goblet_Reg4","Pericytes", "Stromal","Goblet_Reg4","TA","lowQ")
+subCl$annotation1 <- plyr::mapvalues(x = subCl$sub.cluster, from = current.cluster.ids, to = new.cluster.ids)
+DimPlot(subCl, group.by = "annotation1", label = TRUE,raster=FALSE)
+
+### subcluster Enterocytes 
+Idents(subCl) <- "annotation1"
+subCl <- FindSubCluster(subCl,cluster = "Enterocytes",graph.name = "SCT_snn", 
+                        subcluster.name = "sub.cluster",resolution = 0.1)
+DimPlot(subCl, label = TRUE, group.by = "sub.cluster")
+
+Idents(subCl) <- "sub.cluster"
+sub_celltype <- subset(subCl,idents = c("Enterocytes_0","Enterocytes_1","Enterocytes_2"))
+DimPlot(sub_celltype, label = TRUE, group.by = "sub.cluster", label.size = 5)
+DimPlot(sub_celltype ,label = TRUE, group.by = "sub.cluster", split.by = "condition")
+
+VlnPlot(sub_celltype, features = "nFeature_RNA")
+VlnPlot(sub_celltype, features = "percent.mt")
+
+FeaturePlot(sub_celltype, features = c("Epcam","Krt19","Guca2a","Alpi")) 
+
+DotPlot(sub_celltype, features = c("Epcam","Krt19","Guca2a","Alpi"),dot.scale = 6, scale = FALSE, assay = "RNA",cols = c("white","darkred")) + 
+  theme(legend.title = element_text(size = 20), legend.text = element_text(size = 20)) + 
+  theme(title = element_text(size = 20))+ theme(axis.text = element_text(size = 10)) + theme(axis.text.x = element_text(angle = 90)) 
+
+DefaultAssay(sub_celltype) <- "RNA"
+markers <- FindAllMarkers(object = sub_celltype, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, slot = "data")
+View(markers %>% group_by(cluster) %>% top_n(n =10, wt = avg_log2FC))
+
+# rename
+current.cluster.ids <- c("EECs","Endothelial","Enterocytes_0","Enterocytes_1","Enterocytes_2","Goblet_Reg4","Pericytes", "Stromal","TA")
+new.cluster.ids <- c("EECs","Endothelial","Enterocytes_Alpi_low","Enterocytes_Alip_high","Enterocytes_Alip_high","Goblet_Reg4","Pericytes", "Stromal","TA")
+subCl$annotation1 <- plyr::mapvalues(x = subCl$sub.cluster, from = current.cluster.ids, to = new.cluster.ids)
+DimPlot(subCl, group.by = "annotation1", label = TRUE,raster=FALSE)
+
+### subcluster Endothelial 
+Idents(subCl) <- "annotation1"
+subCl <- FindSubCluster(subCl,cluster = "Endothelial",graph.name = "SCT_snn", 
+                        subcluster.name = "sub.cluster",resolution = 0.2)
+DimPlot(subCl, label = TRUE, group.by = "sub.cluster")
+
+Idents(subCl) <- "sub.cluster"
+sub_celltype <- subset(subCl,idents = c("Endothelial_0","Endothelial_1","Endothelial_2"))
+DimPlot(sub_celltype, label = TRUE, group.by = "sub.cluster", label.size = 5)
+DimPlot(sub_celltype ,label = TRUE, group.by = "sub.cluster", split.by = "condition")
+
+VlnPlot(sub_celltype, features = "nFeature_RNA")
+VlnPlot(sub_celltype, features = "percent.mt")
+
+FeaturePlot(sub_celltype, features = c("Rgs5","Pecam1","Vim")) 
+
+DotPlot(sub_celltype, features = c("Rgs5","Pecam1","Vim"),dot.scale = 6, scale = FALSE, assay = "RNA",cols = c("white","darkred")) + 
+  theme(legend.title = element_text(size = 20), legend.text = element_text(size = 20)) + 
+  theme(title = element_text(size = 20))+ theme(axis.text = element_text(size = 10)) + theme(axis.text.x = element_text(angle = 90)) 
+
+DefaultAssay(sub_celltype) <- "RNA"
+markers <- FindAllMarkers(object = sub_celltype, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, slot = "data")
+View(markers %>% group_by(cluster) %>% top_n(n =10, wt = avg_log2FC))
+
+# rename
+current.cluster.ids <- c("EECs","Endothelial_0","Endothelial_1","Endothelial_2","Enterocytes_Alpi_low","Enterocytes_Alip_high","Goblet_Reg4","Pericytes","Stromal","TA")
+new.cluster.ids <- c("EECs","Endothelial","Endothelial","Endothelial", "Enterocytes_Alpi_low","Enterocytes_Alip_high","Goblet_Reg4","Pericytes","Stromal","TA")
+subCl$annotation1 <- plyr::mapvalues(x = subCl$sub.cluster, from = current.cluster.ids, to = new.cluster.ids)
+DimPlot(subCl, group.by = "annotation1", label = TRUE,raster=FALSE)
+
+### subcluster Goblet_Reg 4 (secretory cells ) 
+Idents(subCl) <- "annotation1"
+subCl <- FindSubCluster(subCl,cluster = "Goblet_Reg4",graph.name = "SCT_snn", 
+                        subcluster.name = "sub.cluster",resolution = 0.2)
+DimPlot(subCl, label = TRUE, group.by = "sub.cluster")
+
+Idents(subCl) <- "sub.cluster"
+sub_celltype <- subset(subCl,idents = c("Goblet_Reg4_0","Goblet_Reg4_1","Goblet_Reg4_2","Goblet_Reg4_3"))
+DimPlot(sub_celltype, label = TRUE, group.by = "sub.cluster", label.size = 5)
+DimPlot(sub_celltype ,label = TRUE, group.by = "sub.cluster", split.by = "condition")
+
+VlnPlot(sub_celltype, features = "nFeature_RNA")
+VlnPlot(sub_celltype, features = "percent.mt")
+
+FeaturePlot(sub_celltype, features = c("Atoh1","Muc2","Reg4")) 
+
+DotPlot(sub_celltype, features = c("Atoh1","Muc2","Reg4"),dot.scale = 6, scale = FALSE, assay = "RNA",cols = c("white","darkred")) + 
+  theme(legend.title = element_text(size = 20), legend.text = element_text(size = 20)) + 
+  theme(title = element_text(size = 20))+ theme(axis.text = element_text(size = 10)) + theme(axis.text.x = element_text(angle = 90)) 
+
+DefaultAssay(sub_celltype) <- "RNA"
+markers <- FindAllMarkers(object = sub_celltype, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, slot = "data")
+View(markers %>% group_by(cluster) %>% top_n(n =10, wt = avg_log2FC))
+
+# rename
+current.cluster.ids <- c("EECs","Endothelial","Enterocytes_Alpi_low","Enterocytes_Alip_high", "Goblet_Reg4_0","Goblet_Reg4_1","Goblet_Reg4_2",
+                         "Goblet_Reg4_3","lowQ","Pericytes","Stromal","TA")
+new.cluster.ids <- c("EECs","Endothelial","Enterocytes_Alpi_low","Enterocytes_Alip_high","Reg4_secretory","Goblet","Reg4_secretory",
+                     "Reg4_secretory","lowQ","Pericytes","Stromal","TA")
+subCl$annotation1 <- plyr::mapvalues(x = subCl$sub.cluster, from = current.cluster.ids, to = new.cluster.ids)
+DimPlot(subCl, group.by = "annotation1", label = TRUE,raster=FALSE)
+
+### subcluster EECs 
+Idents(subCl) <- "annotation1"
+subCl <- FindSubCluster(subCl,cluster = "EECs",graph.name = "SCT_snn", 
+                        subcluster.name = "sub.cluster",resolution = 0.2)
+DimPlot(subCl, label = TRUE, group.by = "sub.cluster")
+
+Idents(subCl) <- "sub.cluster"
+sub_celltype <- subset(subCl,idents = c("EECs_0","EECs_1","EECs_2"))
+DimPlot(sub_celltype, label = TRUE, group.by = "sub.cluster", label.size = 5)
+DimPlot(sub_celltype ,label = TRUE, group.by = "sub.cluster", split.by = "condition")
+
+VlnPlot(sub_celltype, features = "nFeature_RNA")
+VlnPlot(sub_celltype, features = "percent.mt")
+
+FeaturePlot(sub_celltype, features = c("S100b","Reg4","Chga","Chgb")) 
+
+DotPlot(sub_celltype, features = c("S100b","Reg4","Chga","Chgb"),dot.scale = 6, scale = FALSE, assay = "RNA",cols = c("white","darkred")) + 
+  theme(legend.title = element_text(size = 20), legend.text = element_text(size = 20)) + 
+  theme(title = element_text(size = 20))+ theme(axis.text = element_text(size = 10)) + theme(axis.text.x = element_text(angle = 90)) 
+
+DefaultAssay(sub_celltype) <- "RNA"
+markers <- FindAllMarkers(object = sub_celltype, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, slot = "data")
+View(markers %>% group_by(cluster) %>% top_n(n =10, wt = avg_log2FC))
+
+# rename
+current.cluster.ids <- c("EECs_0","EECs_1","EECs_2", "Endothelial","Enterocytes_Alpi_low","Enterocytes_Alip_high","Goblet","lowQ","Pericytes", "Reg4_secretory","Stromal","TA")
+new.cluster.ids <- c("lowQ","Glial","EECs", "Endothelial","Enterocytes_Alpi_low","Enterocytes_Alip_high","Goblet","lowQ","Pericytes", "Reg4_secretory","Stromal","TA")
+subCl$annotation1 <- plyr::mapvalues(x = subCl$sub.cluster, from = current.cluster.ids, to = new.cluster.ids)
+DimPlot(subCl, group.by = "annotation1", label = TRUE,raster=FALSE)
+
+### subcluster Stromal 
+Idents(subCl) <- "annotation1"
+subCl <- FindSubCluster(subCl,cluster = "Stromal",graph.name = "SCT_snn", 
+                        subcluster.name = "sub.cluster",resolution = 0.2)
+DimPlot(subCl, label = TRUE, group.by = "sub.cluster")
+
+Idents(subCl) <- "sub.cluster"
+sub_celltype <- subset(subCl,idents = c("Stromal_0","Stromal_1","Stromal_2","Stromal_3","Stromal_4","Stromal_5"))
+DimPlot(sub_celltype, label = TRUE, group.by = "sub.cluster", label.size = 5)
+DimPlot(sub_celltype ,label = TRUE, group.by = "sub.cluster", split.by = "condition")
+
+VlnPlot(sub_celltype, features = "nFeature_RNA")
+VlnPlot(sub_celltype, features = "percent.mt")
+
+FeaturePlot(sub_celltype, features = c("Myh11","Acta2","Gli1","Foxl1","Cd34","Cd90","Pdgfra","Rgs5")) 
+
+DotPlot(sub_celltype, features = c("Col1a1","Myh11","Acta2","Gli1","Foxl1","Cd34","Cd90","Pdgfra","Actg2","Cnn1","Des","Rgs5"),dot.scale = 6, scale = FALSE, assay = "RNA",cols = c("white","darkred")) + 
+  theme(legend.title = element_text(size = 20), legend.text = element_text(size = 20)) + 
+  theme(title = element_text(size = 20))+ theme(axis.text = element_text(size = 10)) + theme(axis.text.x = element_text(angle = 90)) 
+
+DefaultAssay(sub_celltype) <- "RNA"
+markers <- FindAllMarkers(object = sub_celltype, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, slot = "data")
+View(markers %>% group_by(cluster) %>% top_n(n =100, wt = avg_log2FC))
+
+# rename
+current.cluster.ids <- c("EECs", "Endothelial","Enterocytes_Alpi_low","Enterocytes_Alip_high","Glial", "Goblet","lowQ","Pericytes", "Reg4_secretory",
+                         "Stromal_0","Stromal_1","Stromal_2","Stromal_3","Stromal_4","Stromal_5","TA")
+new.cluster.ids <- c("EECs", "Endothelial","Enterocytes_Alpi_low","Enterocytes_Alpi_high","Glial", "Goblet","lowQ","Pericytes", "Reg4_secretory",
+                     "Stromal_Pdgfra","SMCs","Stromal_Cd34","Pericytes","SMCs","lowQ","TA")
+subCl$annotation1 <- plyr::mapvalues(x = subCl$sub.cluster, from = current.cluster.ids, to = new.cluster.ids)
+DimPlot(subCl, group.by = "annotation1", label = TRUE,raster=FALSE)
+
+# remove lowQ 
+Idents(subCl) <- "annotation1"
+obj <- subset(subCl, idents = c("EECs", "Endothelial","Enterocytes_Alpi_low","Enterocytes_Alip_high","Glial", "Goblet","Pericytes", "Reg4_secretory",
+                                "Stromal_Pdgfra","SMCs","Stromal_Cd34","Pericytes","TA"))
+DimPlot(obj, group.by = "annotation1", label = TRUE,raster=FALSE)
+
+## plot marker genes in DotPlot
+markers <- c("Epcam","Lgr5","Axin2", "Mki67","Atoh1","Muc2", "Reg4", "Chga","Chgb", 
+              "Krt19","Guca2a","Alpi", "S100b", "Rgs5","Pecam1","Myh11","Acta2","Vim","Col1a1","Cd34","Pdgfra","Actg2","Cnn1","Des"
+             )
+Idents(obj) <- "annotation1"
+p <- DotPlot(obj, features = markers, scale = TRUE,cols = c("white","darkred"), dot.scale = 5) + theme(axis.text.x = element_text(angle = 45)) 
+ggsave("/scratch/khandl/Neonatal_eosinophils/CD45neg/DotPlot_markers_CD45neg_neo_P14_annotated.svg", width = 8, height = 5, plot = p)
+
+obj$annotation <- obj$annotation1
+
+### DEGs per annotated cluster 
+Idents(obj) <- "annotation"
+markers <- FindAllMarkers(object = obj, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, slot = "data")
+View(markers %>% group_by(cluster) %>% top_n(n =10, wt = avg_log2FC))
+write.csv(markers %>% group_by(cluster) %>% top_n(n =50, wt = avg_log2FC),"/scratch/khandl/Neonatal_eosinophils/CD45neg/top50_DEGs_per_annotated_cluster.csv")
+
+##### save objects
+saveRDS(obj, "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_CD45neg_colon_WT_PHIL_anno2.rds")
+obj <- readRDS( "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_CD45neg_colon_WT_PHIL_anno2.rds")
+

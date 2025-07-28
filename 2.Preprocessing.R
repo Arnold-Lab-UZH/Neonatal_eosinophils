@@ -10,7 +10,7 @@ source("~/Projects/Neonatal_eosinophils/1.2.Functions_preprocessing.R")
 ##### NEO P14 eosinophils 
 ### colon and small intestine 
 NEO_P14_colon_1 <- create_seurat_from_condition(
-  path_to_st_file = file.path("/data/khandl/raw_data/M25/", "NEO_P14_1_SampleTag01_mm_colon_Expression_Data.st"), 
+  path_to_st_file = file.path("/data/khandl/raw_data/M25", "NEO_P14_1_SampleTag01_mm_colon_Expression_Data.st"), 
   project = "NEO_P14_colon_1", condition = "NEO_P14_colon",3,100)
 
 NEO_P14_colon_2 <- create_seurat_from_condition(
@@ -31,6 +31,8 @@ obj <- merge(NEO_P14_colon_1, y = c(NEO_P14_small_int_1,NEO_P14_colon_2,NEO_P14_
 
 # add mitochondrial features 
 obj$percent.mt <- PercentageFeatureSet(obj, pattern = "^mt.")
+
+saveRDS(obj, file = "/scratch/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_eos_colon_SI_wO_QC_cutoff.rds")
 
 # assess and apply upper nFeature cutoff 
 FeatureScatter(obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
@@ -66,6 +68,8 @@ obj <- merge(neo_blood, y = c(neo_bm,neo_spleen,adult_spleen),
 # add mitochondrial features 
 obj$percent.mt <- PercentageFeatureSet(obj, pattern = "^mt.")
 
+saveRDS(obj, file = "/scratch/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_eos_blood_bone_marrow_spleen_wo_QC_cutoff.rds")
+
 # assess and apply upper nFeature cutoff 
 FeatureScatter(obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
 obj <- subset(obj, subset = nFeature_RNA < 6000)
@@ -89,13 +93,19 @@ colonCD45enr_neo_phil <- create_seurat_from_condition_DecontX(
   path_to_st_file = file.path("/data/khandl/raw_data/", "20230717_third_seq", "CD45enr_neo_P14_colon_phil_SampleTag10_mm_Expression_Data.st"), 
   project = "colonCD45enr_neo_phil", condition = "neo_P14_phil",3,100)
 
+colonCD45enr_adult_phil <- create_seurat_from_condition_DecontX(
+  path_to_st_file = file.path("/data/khandl/raw_data", "CD45enr_adult", "CD45enr_adult_colon_phil_SampleTag03_mm_Expression_Data.st"), 
+  project = "colonCD45enr_adult_phil", condition = "adult_phil",3,100)
+
 # Merge objects
-obj <- merge(colonCD45enr_adult_wt, y = c(colonCD45enr_neo_wt,colonCD45enr_neo_phil),
-             add.cell.ids = c("colonCD45enr_adult_wt",
+obj <- merge(colonCD45enr_adult_wt, y = c(colonCD45enr_adult_phil,colonCD45enr_neo_wt,colonCD45enr_neo_phil),
+             add.cell.ids = c("colonCD45enr_adult_wt","colonCD45enr_adult_phil",
                               "colonCD45enr_neo_wt","colonCD45enr_neo_phil"))
 
 # Add mitochondrial features percentage per cell 
 obj$percent.mt <- PercentageFeatureSet(obj, pattern = "^mt.")
+
+saveRDS(obj, file = "/scratch/khandl/Neonatal_eosinophils/seurat_objects/Adult_and_Neo_P14_CD45enr_colon_WT_PHIL_wo_QC_cutoff.rds")
 
 # assess and apply upper nFeature cutoff 
 FeatureScatter(obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
@@ -122,6 +132,8 @@ obj <- merge(colonCD45neg_wt, y = colonCD45neg_phil,
 
 # Add mitochondrial features percentage per cell 
 obj$percent.mt <- PercentageFeatureSet(obj, pattern = "^mt.")
+
+saveRDS(obj, file = "/scratch/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_CD45neg_colon_WT_PHIL_wo_QC_cutoff.rds")
 
 # assess and apply upper nFeature cutoff 
 FeatureScatter(obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
@@ -155,6 +167,8 @@ obj$percent.mt <- PercentageFeatureSet(obj, pattern = "^MT-")
 # join layers 
 obj <- JoinLayers(obj)
 
+saveRDS(obj, file = "/scratch/khandl/Neonatal_eosinophils/seurat_objects/Cord_blood_wo_QC_cutoff.rds")
+
 # save object
 saveRDS(obj, file = "/scratch/khandl/Neonatal_eosinophils/seurat_objects/Cord_blood.rds")
 
@@ -178,19 +192,21 @@ obj <- merge(PB1, y = c(PB2, PB3,PB4,PB5,PB6),add.cell.ids = c("pb1", "pb2","pb3
 # Add mitochondrial features percentage per cell 
 obj$percent.mt <- PercentageFeatureSet(obj, pattern = "^MT-")
 
+saveRDS(obj, file = "/scratch/khandl/Neonatal_eosinophils/seurat_objects/Peripheral_blood_wo_QC_cutoff.rds")
+
 # join layers 
 obj <- JoinLayers(obj)
 
 # save object
 saveRDS(obj, file = "/scratch/khandl/Neonatal_eosinophils/seurat_objects/peripheral_blood.rds")
 
-##### NEO P16 colon after eos depletion neonatally at days 5, 7, 10 (Cre+), not depleted in Cre- 
+##### NEO P21 colon after eos depletion neonatally at days 5, 7, 10 (Cre+), not depleted in Cre- 
 colon_iDT_Cre_pos <- create_seurat_from_condition(
-  path_to_st_file = file.path("/data/khandl/raw_data/NEO58/", "P16_colon_iDT_Cre_pos_SampleTag09_mm_Expression_Data.st"), 
+  path_to_st_file = file.path("/data/khandl/raw_data/NEO58/", "P21_colon_iDT_Cre_pos_SampleTag09_mm_Expression_Data.st"), 
   project = "colon_iDT_Cre_pos", condition = "P16_colon_iDT_Cre_pos",3,100)
 
 colon_iDT_Cre_neg <- create_seurat_from_condition(
-  path_to_st_file = file.path("/data/khandl/raw_data/NEO58/", "P16_colon_iDT_Cre_neg_SampleTag10_mm_Expression_Data.st"), 
+  path_to_st_file = file.path("/data/khandl/raw_data/NEO58/", "P21_colon_iDT_Cre_neg_SampleTag10_mm_Expression_Data.st"), 
   project = "colon_iDT_Cre_neg", condition = "P16_colon_iDT_Cre_neg",3,100)
 
 # merge objects
@@ -200,6 +216,8 @@ obj <- merge(colon_iDT_Cre_pos, y = c(colon_iDT_Cre_neg),
 # add mitochondrial features 
 obj$percent.mt <- PercentageFeatureSet(obj, pattern = "^mt.")
 
+saveRDS(obj, file = "/scratch/khandl/Neonatal_eosinophils/seurat_objects/Neo_P21_iDT_CREpos_CREneg_wo_QC_cutoff.rds")
+
 # assess and apply upper nFeature cutoff 
 FeatureScatter(obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
 obj <- subset(obj, subset = nFeature_RNA < 6000)
@@ -208,5 +226,4 @@ obj <- subset(obj, subset = nFeature_RNA < 6000)
 obj <- JoinLayers(obj)
 
 # save object 
-saveRDS(obj, file = "/scratch/khandl/Neonatal_eosinophils/seurat_objects/Neo_P16_iDT_CREpos_CREneg.rds")
-
+saveRDS(obj, file = "/scratch/khandl/Neonatal_eosinophils/seurat_objects/Neo_P21_iDT_CREpos_CREneg.rds")

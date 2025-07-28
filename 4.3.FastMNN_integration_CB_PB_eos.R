@@ -58,7 +58,7 @@ FeaturePlot(obj, features = c("EPX", "NFKB2","CLC","AREG",
                               "EPX","PRG2", "CLC","AREG", "ALOX15","PRSS33","PIK3R6","SMPD3"),raster=FALSE,reduction = "umap.mnn")
 
 Idents(obj) <- "annotation"
-DotPlot(obj, features = c("EPX","PRG2", "CLC","AREG", "ALOX15","PRSS33","PIK3R6","SMPD3","NFKB2" ), scale = FALSE)
+DotPlot(obj, features = c("EPX","PRG2", "CLC","AREG", "ALOX15","PRSS33","PIK3R6","SMPD3","NFKB2","CD274","CD80" ), scale = FALSE)
 # cluster 0 expresses B-like markers like the peripheral blood (PRSS33, PIK3R6, SMPD3)
 # cluster 1 expressed EPX, PRG2 --> precursor markes 
 
@@ -79,6 +79,15 @@ for(i in markers) {
   ggsave(paste0("/scratch/khandl/Neonatal_eosinophils/figures/CB_PB_eos/",i,".pdf"), width = 8, height = 5, plot = p)
 } 
 
+Idents(obj) <- "annotation"
+DotPlot(obj, features = c("EPX","PRG2", "CLC","AREG", "ALOX15","PRSS33","PIK3R6","SMPD3","NFKB2","CD274","CD80" ), scale = FALSE)
+
+Idents(obj) <- "annotation"
+p <- DotPlot(obj, features = c("EPX","MKI67", "PRG2","PRG3", "CLC","AREG", "ALOX15","PRSS33","PIK3R6","SMPD3","CD274","CD80" ),
+             scale = FALSE,cols = c("lightblue","darkred"), dot.scale = 15) +   theme(axis.text.x = element_text(angle = 90)) 
+ggsave("/scratch/khandl/Neonatal_eosinophils/figures/CB_PB_eos/annotation_markers.pdf", width = 8, height = 5, plot = p)
+
 ##### save object 
 saveRDS(obj, "/data/khandl/Neonatal_eosinophils/seurat_objects/CB_PB_eos_integrated_anno.rds")
 
+obj <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/CB_PB_eos_integrated_anno.rds")
