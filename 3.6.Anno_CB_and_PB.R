@@ -12,13 +12,13 @@ source("~/Projects/Neonatal_eosinophils/1.3.Functions_annotation.R")
 obj <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/peripheral_blood.rds")
 
 ##### pre-processing and clustering 
+obj[["RNA"]] <- split(obj[["RNA"]], f = obj$condition)
 obj <- NormalizeData(obj,normalization.method = "LogNormalize", scale.factor = 10000,margin = 1, assay = "RNA")
 obj <- FindVariableFeatures(obj)
 obj <- ScaleData(obj,vars.to.regress = c("nFeature_RNA","nCount_RNA","percent.mt"))
 obj <- RunPCA(obj, features = VariableFeatures(object =obj), npcs = 20, verbose = FALSE)
 
 ##### fastMNN integration to account for batch effects 
-obj[["RNA"]] <- split(obj[["RNA"]], f = obj$condition)
 obj <- IntegrateLayers(object = obj, method = FastMNNIntegration,new.reduction = "integrated.mnn",
                        verbose = FALSE)
 obj <- FindNeighbors(obj, reduction = "integrated.mnn", dims = 1:15)

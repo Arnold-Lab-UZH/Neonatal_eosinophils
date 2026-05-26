@@ -52,6 +52,10 @@ DimPlot(merged, label = TRUE, group.by = "condition")
 ##### fastMNN integration 
 obj <- merged
 obj[["RNA"]] <- split(obj[["RNA"]], f = obj$condition)
+obj <- NormalizeData(obj)
+obj <- FindVariableFeatures(obj)
+obj <- ScaleData(obj,vars.to.regress = c("nFeature_RNA","nCount_RNA","percent.mt"))
+
 obj <- IntegrateLayers(object = obj, method = FastMNNIntegration,new.reduction = "integrated.mnn",
                        verbose = FALSE)
 ElbowPlot(obj)

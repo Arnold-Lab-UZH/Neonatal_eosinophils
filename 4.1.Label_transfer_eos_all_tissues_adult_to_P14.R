@@ -8,7 +8,7 @@ source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
 
 ##### read in R objects 
 neo_gut <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_eos_colon_SI_anno.rds")
-adult_eosSS <- readRDS("/data/khandl/common/Nature_paper_data/eosinophils_steadystate.rds")
+adult_eosSS <- readRDS("/home/khandl/data/common/Nature_paper_data/eosinophils_steadystate.rds")
 neo_bm_spleen_blood <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_eos_blood_bone_marrow_spleen_annotated.rds")
 
 ##### extract eosinophils from neo objects
