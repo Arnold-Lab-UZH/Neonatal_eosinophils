@@ -1,8 +1,8 @@
-#### This repository contains the code that has been used to analyse bulk- and scRNA-seq of the following publication …. 
+## This repository contains the code that has been used to analyse bulk- and scRNA-seq of the following publication …. 
 
 ### Data used to reproduce the code 
-## Newly acquired bulk- and scRNA-seq data can be found under GEO accession number ... 
-## Public data from Gurtner et al, Nature 2022, adult Il5-tg eos from various tissues, GEO accession number GSE182001 and processed Seurat objects in zenodo (https://zenodo.org/records/10225349)
+#### Newly acquired bulk- and scRNA-seq data can be found under GEO accession number ... 
+#### Public data from Gurtner et al, Nature 2022, adult Il5-tg eos from various tissues, GEO accession number GSE182001 and processed Seurat objects in zenodo (https://zenodo.org/records/10225349)
 
 ### Code description: 
 
