@@ -17,20 +17,6 @@ DEG_to_csv_two_cond <- function(
   write.csv(markers, file = csv_file_directory)
 }
 
-### Function to do DEG analysis between two conditions using pseudobulking and DESeq2 
-DEG_two_cond_pb_DESeq2 <- function(
-    pseudobulk_object,
-    celltype_cond1,
-    celltype_cond2,
-    output_path
-){
-  bulk_de <- FindMarkers(object = pseudobulk_object, 
-                         ident.1 = celltype_cond1,
-                         ident.2 = celltype_cond2,
-                         test.use = "DESeq2")
-  # write output 
-  write.csv(bulk_de, paste0(output_path, "DESeq2_",celltype_cond1,"_",celltype_cond2,".csv"))
-}
 
 ##### Functions for plotting of genes 
 ### Function to plot genes of interest per condition of interest, scaled per row 
@@ -67,7 +53,7 @@ heatmap_goi_coi <- function(
   annot_colors=list(markers=groups_and_colors)
   
   p <- pheatmap(average_expression_df,scale = "row",
-                color = colorRampPalette(c("blue", "white", "darkorange"))(length(breaksList)), # Defines the vector of colors for the legend (it has to be of the same lenght of breaksList)
+                color = colorRampPalette(c("blue", "white", "darkorange"))(length(breaksList)), # Defines the vector of colors for the legend (it has to be of the same length of breaksList)
                 breaks = breaksList,
                 cluster_rows = cluster_rows_cond, cluster_cols = cluster_cols_cond, 
                 border_color = "black", 
@@ -157,7 +143,7 @@ heatmap_logFC_goi <- function(
   rownames(deg_df2) <- deg_df2$X
   deg_df2$X <- NULL
   p <- pheatmap(deg_df2,
-                color = colorRampPalette(c("blue", "white", "darkorange"))(length(breaksList)), # Defines the vector of colors for the legend (it has to be of the same lenght of breaksList)
+                color = colorRampPalette(c("blue", "white", "darkorange"))(length(breaksList)), # Defines the vector of colors for the legend (it has to be of the same length of breaksList)
                 breaks = breaksList,
                 cluster_rows = F, cluster_cols = F, 
                 border_color = "black", 

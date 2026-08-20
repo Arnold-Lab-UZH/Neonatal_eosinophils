@@ -1,15 +1,14 @@
 ########## This code clusters and annotates cells from cord and peripheral blood ##########
 
-##### Set up environment 
-setwd("/home/khandl")
-
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.3.Functions_annotation.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir,"1.5.Functions_annotation.R"))
 
 ########## peripheral blood experiment 1 
 ##### read in object 
-obj <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/peripheral_blood.rds")
+obj <- readRDS(file = file.path(seurat_objects_dir,"Peripheral_blood.rds"))
 
 ##### pre-processing and clustering 
 obj[["RNA"]] <- split(obj[["RNA"]], f = obj$condition)
@@ -58,11 +57,11 @@ Idents(obj) <- "annotation"
 obj <- subset(obj, idents = c("Eosinophils","Neutrophils","T","Monocytes", "Mast"))
 
 # save object 
-saveRDS(obj, "/data/khandl/Neonatal_eosinophils/seurat_objects/peripheral_blood_anno.rds")
+saveRDS(obj, file.path(seurat_objects_dir,"peripheral_blood_anno.rds"))
 
 ########## cord blood and one peripheral blood control 
 ##### load R object 
-obj <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/Cord_blood.rds")
+obj <- readRDS(file = file.path(seurat_objects_dir,"Cord_blood.rds"))
 
 ##### clustering 
 obj <- NormalizeData(obj,normalization.method = "LogNormalize", scale.factor = 10000,margin = 1, assay = "RNA")
@@ -124,5 +123,5 @@ obj <- subset(subCl, idents = c("Eosinophils","Neutrophils","EPs","GMPs"))
 DimPlot(obj, group.by = "annotation", label = TRUE, reduction = "umap.mnn")
 
 # save object 
-saveRDS(obj, "/data/khandl/Neonatal_eosinophils/seurat_objects/Cord_blood_anno.rds")
+saveRDS(obj, file.path(seurat_objects_dir,"Cord_blood_anno.rds"))
 

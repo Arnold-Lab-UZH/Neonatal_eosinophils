@@ -1,16 +1,14 @@
 ########## This code compares CO eosinophils between Il5-tg and Wt mice ##########
-# Figure S5
-
-##### Set up environment 
-setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.4.Functions_DEGs.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir, "1.6.Functions_DEGs.R"))
 
 ##### load objects 
-wt_all_cells <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Adult_and_Neo_P14_CD45enr_colon_WT_PHIL_anno.rds")
-il5tg_all_cells <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_LT.rds")
+wt_all_cells <- readRDS(file.path(seurat_objects_dir,"Adult_and_Neo_P14_CD45enr_colon_WT_PHIL_anno.rds"))
+il5tg_all_cells <- readRDS(file.path(seurat_objects_dir,"Neo_P14_adult_eos_CO_SI_LT.rds"))
 
 ##### subset only CO eos 
 Idents(wt_all_cells) <- "annotation"
@@ -67,12 +65,12 @@ DimPlot(integrated,reduction = "umap",split.by  = "condition",combine = FALSE, l
 Idents(integrated) <- "condition"
 sub <- subset(integrated, idents = c("adult_il5tg","adult_wt"))
 p <- DimPlot(sub,reduction = "umap",group.by  = "condition", cols = c( "#A39F9F","#870C27"), pt.size = 1)
-ggsave(file = "/scratch/khandl/Neonatal_eosinophils/figures/eos_comparison/umap_adult_il5tg_wt_CO.svg", width = 10, height = 6)
+ggsave(file = file.path(Gene_expr_comp_plots_dir,"umap_adult_il5tg_wt_CO.svg"), width = 10, height = 6)
 
 Idents(integrated) <- "condition"
 sub <- subset(integrated, idents = c("neo_P14_il5tg","neo_P14_wt"))
 p <- DimPlot(sub,reduction = "umap",group.by  = "condition", cols = c( "#A39F9F","#240FF2"),pt.size = 1)
-ggsave(file = "/scratch/khandl/Neonatal_eosinophils/figures/eos_comparison/umap_adult_il5tg_wt_SI.svg", width = 10, height = 6)
+ggsave(file = file.path(Gene_expr_comp_plots_dir,"umap_adult_il5tg_wt_SI.svg"), width = 10, height = 6)
 
 ## join layers 
 integrated <- JoinLayers(integrated)
@@ -117,7 +115,7 @@ ggVennDiagram(x) + theme(plot.title = element_text(size = 25, face = "bold"))
 Idents(wt_all_cells) <- "annotation"
 wt_eos <- subset(wt_all_cells, idents = "Eosinophils")
 Idents(wt_eos) <- "condition"
-DEG_to_csv_two_cond(wt_eos,"neo_P14_wt","adult_wt",FALSE,0.1,"/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_wt_eos/CO_eos_neo_vs_adult_wt.csv")
+DEG_to_csv_two_cond(wt_eos,"neo_P14_wt","adult_wt",FALSE,0.1,file.path(Gene_expr_comp_tables_dir,"CO_eos_neo_vs_adult_wt.csv"))
 
 ## genes of interest from 8.2 
 genes_of_interest <- c("Siglecf","Lilra6","Clec12a","Siglece", "Cd300a","Cd300lb", # Inhibitory receptors (ITIM)
@@ -135,7 +133,7 @@ genes_of_interest <- c("Siglecf","Lilra6","Clec12a","Siglece", "Cd300a","Cd300lb
 )
 
 ## plot genes and analyse their significance
-df <- read.csv("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_wt_eos/CO_eos_neo_vs_adult_wt.csv")
+df <- read.csv(file.path(Gene_expr_comp_tables_dir,"CO_eos_neo_vs_adult_wt.csv"))
 df2 <- df[df$X %in% genes_of_interest,]
 missing_genes <- genes_of_interest[!genes_of_interest %in% df2$X]
 print(missing_genes)
@@ -156,10 +154,10 @@ gene12 <- c("C5ar1",0,0,0,0,1)
 df_new <- rbind(df2,gene1,gene2,gene3,gene4,gene5,gene6,gene7,gene8,gene9,gene10,gene11,gene12)
 rownames(df_new) <- df_new$X
 df_new$X <- NULL
-write.csv(df_new,"/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_wt_eos/CO_eos_neo_vs_adult_wt_for_plotting.csv")
+write.csv(df_new,file.path(Gene_expr_comp_tables_dir,"CO_eos_neo_vs_adult_wt_for_plotting.csv"))
 
 # neo high and adult low 
-heatmap_logFC_goi("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_wt_eos/CO_eos_neo_vs_adult_wt_for_plotting.csv",
+heatmap_logFC_goi(file.path(Gene_expr_comp_tables_dir,"CO_eos_neo_vs_adult_wt_for_plotting.csv"),
                   genes_of_interest,
                   "condition",genes_of_interest,c("ITIM", "Enzymes", "Chemo_Cyto", "Receptors", "MMPs",
                                                   "Nfkb","MapK","metabolic","ATP","Actin","Vesicular", "Fcg"),
@@ -174,19 +172,19 @@ heatmap_logFC_goi("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_wt_eos/C
 Idents(il5tg_all_cells) <- "condition"
 il5tg <- subset(il5tg_all_cells, idents =c("adult_colon","NEO_P14_colon")) 
 Idents(il5tg) <- "condition"
-DEG_to_csv_two_cond(il5tg,"NEO_P14_colon","adult_colon",FALSE,0.1,"/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_wt_eos/CO_eos_neo_vs_adult_il5tg.csv")
+DEG_to_csv_two_cond(il5tg,"NEO_P14_colon","adult_colon",FALSE,0.1,file.path(Gene_expr_comp_tables_dir,"CO_eos_neo_vs_adult_il5tg.csv"))
 
-df <- read.csv("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_wt_eos/CO_eos_neo_vs_adult_il5tg.csv")
+df <- read.csv(file.path(Gene_expr_comp_tables_dir,"CO_eos_neo_vs_adult_il5tg.csv"))
 df2 <- df[df$X %in% genes_of_interest,]
 missing_genes <- genes_of_interest[!genes_of_interest %in% df2$X]
 print(missing_genes)
 rownames(df2) <- df2$X
 df2$X <- NULL
 
-write.csv(df2,"/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_wt_eos/CO_eos_neo_vs_adult_il5tg_for_plotting.csv")
+write.csv(df2,file.path(Gene_expr_comp_tables_dir,"CO_eos_neo_vs_adult_il5tg_for_plotting.csv"))
 
 # neo high and adult low 
-heatmap_logFC_goi("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_wt_eos/CO_eos_neo_vs_adult_il5tg_for_plotting.csv",
+heatmap_logFC_goi(file.path(Gene_expr_comp_tables_dir,"CO_eos_neo_vs_adult_il5tg_for_plotting.csv"),
                   genes_of_interest,
                   "condition",genes_of_interest,c("ITIM", "Enzymes", "Chemo_Cyto", "Receptors", "MMPs",
                                                   "Nfkb","MapK","metabolic","ATP","Actin","Vesicular", "Fcg"),

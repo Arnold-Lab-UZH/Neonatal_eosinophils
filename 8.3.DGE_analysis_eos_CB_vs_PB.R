@@ -1,15 +1,13 @@
 ########## This code applies DGE analysis between CB and PB B-eos-liek eosinophils ##########
-# Figure 2
-
-##### Set up environment 
-setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.4.Functions_DEGs.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir, "1.6.Functions_DEGs.R"))
 
 ### ##load objects 
-obj <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/CB_PB_eos_integrated_anno.rds")
+obj <- readRDS(file.path(seurat_objects_dir,"CB_PB_eos_integrated_anno.rds"))
 
 ### extract only B-eos-like because there are not Precursors in PB
 Idents(obj) <- "annotation"
@@ -17,14 +15,43 @@ obj <- subset(obj, idents = "B_Eos_like")
 
 ##### DEG analysis 
 ### generate pseudobulks per sample 
-pb <- AggregateExpression(obj, assays = "RNA", return.seurat = T, group.by = c("type","condition"))
+# type = CB/PB, condition = sample id, experiment = Exp1/Exp6
+pb <- AggregateExpression(obj, assays = "RNA", return.seurat = TRUE, group.by = c("type","condition"))
 
-### run DEG analysis with DESeq2
-Idents(pb) <- "type"
-DEG_two_cond_pb_DESeq2(pb, "CB", "PB", "/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CB_PB/")
+counts <- GetAssayData(pb, assay = "RNA", layer = "counts")
+meta <- pb@meta.data
+meta$type <- factor(meta$type, levels = c("CB","PB"))
+meta$experiment <- factor(meta$experiment)
+
+### inspect rank / confounding before fitting
+cat("Cross-tabulation of experiment x type:\n")
+print(table(meta$type))
+# if 3 here, every coefficient is estimatable, if it would be lower than 3 it would mean that f.e. experiment and type are collinear and 
+# therefore perfectly confounded, it would not be possible to estimate both
+# it is 3 because f.e. PB7 is a PB donor inside Exp1, Experiment and type are not perfectly aligned 
+cat("Design matrix rank (should equal number of columns = 3):\n")
+print(Matrix::rankMatrix(model.matrix(~ type, data = meta)))
+
+dds <- DESeqDataSetFromMatrix(countData = counts, colData = meta, design = ~ type)
+
+### filter low-count genes
+keep <- rowSums(counts(dds)) >= 10
+dds <- dds[keep, ]
+
+# reduced is the model without the type that we are testing, not the thing we are interested in 
+dds <- DESeq(dds, test = "LRT",reduced = ~ 1, useT = TRUE, minReplicatesForReplace = Inf)
+# defined CB vs. PB, so positive log2FC = high in CB 
+res <- results(dds, contrast = c("type","CB","PB"))
+res <- as.data.frame(res)
+res$X <- rownames(res)
+res$avg_log2FC <- res$log2FoldChange
+res$p_val_adj <- res$padj
+res$p_val <- res$pvalue
+res <- res[,c("X","baseMean","avg_log2FC","p_val_adj","p_val")]
+write.csv(res, file.path(DEGs_tables_dir,"DESeq2_CB_vs_PB.csv"))
 
 ##### plot GOI in heatmap 
-degs <- read.csv("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CB_PB/DESeq2_CB_PB.csv")
+degs <- read.csv(file.path( DEGs_tables_dir,"DESeq2_CB_vs_PB.csv"))
 
 goi <- c("IL1RL1","TNFAIP3","IRF1", "NFKBIA","NFKB2","RELB","NFKBID","NFKBIB","MAP3K8", #Immune signaling
                        "THBS1","AREG","PLAUR","ADAM17",#Tissue remodeling
@@ -36,7 +63,7 @@ goi <- c("IL1RL1","TNFAIP3","IRF1", "NFKBIA","NFKB2","RELB","NFKBID","NFKBIB","M
 degs_goi <- degs[degs$X %in% goi,]
 
 # heatmap 
-degs_goi_for_plotting <- degs_goi[,c(1,3)]
+degs_goi_for_plotting <- degs_goi[,c(2,4)]
 rownames(degs_goi_for_plotting) <- degs_goi_for_plotting$X
 degs_goi_for_plotting$X <- NULL
 

@@ -11,7 +11,7 @@ FACS_plotting_heatmap_line_graph_and_stats_along_time_points <- function(
   df4 <- read.csv(paste0(input_path,"CO_",measurement,".csv"), sep = ";")
   df5 <- read.csv(paste0(input_path,"SI_",measurement,".csv"), sep = ";")
   
-  # remove the first column wich has the mouse number information 
+  # remove the first column which has the mouse number information 
   df1 <- df1[,2:length(colnames(df1))]
   df2 <- df2[,2:length(colnames(df2))]
   df3 <- df3[,2:length(colnames(df3))]
@@ -174,7 +174,7 @@ FACS_plotting_heatmap_line_graph_and_stats_along_pseudotime <- function(
   df4 <- read.csv(paste0(input_path,"CO_",measurement,".csv"), sep = ";")
   df5 <- read.csv(paste0(input_path,"SI_",measurement,".csv"), sep = ";")
   
-  # remove the first column wich has the mouse number information 
+  # remove the first column which has the mouse number information 
   df1 <- df1[,2:length(colnames(df1))]
   df2 <- df2[,2:length(colnames(df2))]
   df3 <- df3[,2:length(colnames(df3))]

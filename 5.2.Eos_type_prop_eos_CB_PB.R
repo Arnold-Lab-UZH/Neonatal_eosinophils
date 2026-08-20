@@ -1,19 +1,17 @@
 ########## This code looks at eosinophils subtype proportions between CB and PB ##########
-# Figure 2
-
-##### Set up environment 
-setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.5.Functions_cell_type_prop.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir, "1.7.Functions_cell_type_prop.R"))
 
 ### load objects 
-obj <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/CB_PB_eos_integrated_anno.rds")
+obj <- readRDS(file.path(seurat_objects_dir,"CB_PB_eos_integrated_anno.rds"))
 
 ##### proportion of annotated cluster per condition
-create_table_cell_type_prop(obj, "type","annotation","/scratch/khandl/Neonatal_eosinophils/figures/CB_PB_eos/","eos_anno")
-df <- read.csv("/scratch/khandl/Neonatal_eosinophils/figures/CB_PB_eos/eos_anno_proportions_type_annotation.csv", header = TRUE)
+create_table_cell_type_prop(obj, "type","annotation",file.path(integration_eos_tables_dir),"/eos_CB_PB")
+df <- read.csv(file.path(integration_eos_tables_dir,"eos_CB_PB_proportions_type_annotation.csv"), header = TRUE)
 
 df_plotting <- create_table_cell_type_prop_table_for_plot(df,c(2,3)) 
 
@@ -24,9 +22,9 @@ p <- ggplot(data=df_plotting, aes(x=sample, y=proportion, fill = cell_types)) +
   scale_y_continuous(limits = c(0, 1.0), breaks = seq(0, 1.0, by = 0.2)) +
   scale_fill_manual(values=  c("#2AB34B","#7094CD")) + coord_flip() + 
   theme_classic(base_size = 25) 
-ggsave("/scratch/khandl/Neonatal_eosinophils/figures/CB_PB_eos/prop_barplot_clusters.svg", width = 12, height = 6, plot = p)
+ggsave(file.path(integration_eos_plots_dir,"prop_barplot_clusters.svg"), width = 12, height = 6, plot = p)
 
 ##### statistic 
 cell_type_prop_stats(obj,"annotation","PB","CB","type",1.41,
-                     "/scratch/khandl/Neonatal_eosinophils/figures/CB_PB_eos/stats_adult_cord.svg") 
+                     file.path(integration_eos_plots_dir,"stats_adult_cord.svg") )
 

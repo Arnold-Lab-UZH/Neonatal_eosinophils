@@ -1,15 +1,13 @@
 ########## This code applies DGE analysis in CO CD45 positive cells neo P14 PHIL vs. WT  ##########
-# Figure 5
-
-##### Set up environment 
-setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.4.Functions_DEGs.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir, "1.6.Functions_DEGs.R"))
 
 ### ##load objects 
-obj <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Adult_and_Neo_P14_CD45enr_colon_WT_PHIL_anno.rds")
+obj <- readRDS(file.path(seurat_objects_dir,"Adult_and_Neo_P14_CD45enr_colon_WT_PHIL_anno.rds"))
 
 #normalize counts in the object  
 obj <- NormalizeData(obj, normalization.method = "LogNormalize",scale.factor = 10000,margin = 1, assay = "RNA")
@@ -22,7 +20,7 @@ for(i in cell_types) {
   Idents(obj) <- "annotation"
   sub <- subset(obj, idents = i)
   Idents(sub) <- "condition"
-  DEG_to_csv_two_cond(sub,"neo_P14_phil","neo_P14_wt",FALSE,0.25,paste0("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/", i,"_neo_phil_vs_neo_wt.csv") )
+  DEG_to_csv_two_cond(sub,"neo_P14_phil","neo_P14_wt",FALSE,0.25,paste0(file.path(DEGs_tables_CD45pos_all_cell_types_dir),"/", i,"_neo_phil_vs_neo_wt.csv") )
 }
 
 ##### plot genes of interest 
@@ -33,7 +31,7 @@ genes_of_interest <- c("Itgam","Clec4a1","Clec7a","Clec4n","Fcgr2b","Cd14",#anti
 )
 
 #identify genes not present in the dataframe 
-df <- read.csv("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/Mono_Mac_neo_phil_vs_neo_wt.csv")
+df <- read.csv(file.path(DEGs_tables_CD45pos_all_cell_types_dir,"Mono_Mac_neo_phil_vs_neo_wt.csv"))
 df2 <- df[df$X %in% genes_of_interest,]
 missing_genes <- genes_of_interest[!genes_of_interest %in% df2$X]
 print(missing_genes)
@@ -45,15 +43,15 @@ gene3 <- c("Tgfbi",0,0,0,0,1)
 df_new <- rbind(df2,gene1,gene2,gene3)
 rownames(df_new) <- df_new$X
 df_new$X <- NULL
-write.csv(df_new,"/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/Mono_Mac_neo_phil_vs_neo_wt_for_plotting.csv")
+write.csv(df_new,file.path(DEGs_tables_CD45pos_all_cell_types_dir,"Mono_Mac_neo_phil_vs_neo_wt_for_plotting.csv"))
 
-heatmap_logFC_goi("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/Mono_Mac_neo_phil_vs_neo_wt_for_plotting.csv",genes_of_interest,
+heatmap_logFC_goi(file.path(DEGs_tables_CD45pos_all_cell_types_dir,"Mono_Mac_neo_phil_vs_neo_wt_for_plotting.csv"),genes_of_interest,
                   "condition",genes_of_interest,c("antigen_pres","immune_response","ECM"),
                   c(6,12,5),c("#F4062E", "#0F9EED","#36AA0B"),c(antigen_pres="#F4062E",  immune_response= "#0F9EED",  ECM= "#36AA0B"))
 
 ### Mature mac 1 
 #identify genes not present in the dataframe 
-df <- read.csv("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/Mac1_neo_phil_vs_neo_wt.csv")
+df <- read.csv(file.path(DEGs_tables_CD45pos_all_cell_types_dir,"Mac1_neo_phil_vs_neo_wt.csv"))
 df2 <- df[df$X %in% genes_of_interest,]
 missing_genes <- genes_of_interest[!genes_of_interest %in% df2$X]
 print(missing_genes)
@@ -67,9 +65,9 @@ gene5 <- c("Mmp19",0,0,0,0,1)
 df_new <- rbind(df2,gene1,gene2,gene3,gene4,gene5)
 rownames(df_new) <- df_new$X
 df_new$X <- NULL
-write.csv(df_new,"/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/Mac1_neo_phil_vs_neo_wt_for_plotting.csv")
+write.csv(df_new,file.path(DEGs_tables_CD45pos_all_cell_types_dir,"Mac1_neo_phil_vs_neo_wt_for_plotting.csv"))
 
-heatmap_logFC_goi("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/Mac1_neo_phil_vs_neo_wt_for_plotting.csv",genes_of_interest,
+heatmap_logFC_goi(file.path(DEGs_tables_CD45pos_all_cell_types_dir,"Mac1_neo_phil_vs_neo_wt_for_plotting.csv"),genes_of_interest,
                   "condition",genes_of_interest,c("antigen_pres","immune_response","ECM"),
                   c(6,12,5),c("#F4062E", "#0F9EED","#36AA0B"),c(antigen_pres="#F4062E",  immune_response= "#0F9EED",  ECM= "#36AA0B"))
 
@@ -78,7 +76,7 @@ heatmap_logFC_goi("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/
 genes_of_interest <- c("Itgax","Itgae","Cd24a","Clec4n","Cd44","Adgre5")
 
 #identify genes not present in the dataframe 
-df <- read.csv("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/cDC1_neo_phil_vs_neo_wt.csv")
+df <- read.csv(file.path(DEGs_tables_CD45pos_all_cell_types_dir,"cDC1_neo_phil_vs_neo_wt.csv"))
 df2 <- df[df$X %in% genes_of_interest,]
 missing_genes <- genes_of_interest[!genes_of_interest %in% df2$X]
 print(missing_genes)
@@ -91,15 +89,15 @@ gene4 <- c("Adgre5",0,0,0,0,1)
 df_new <- rbind(df2,gene1,gene2,gene3,gene4)
 rownames(df_new) <- df_new$X
 df_new$X <- NULL
-write.csv(df_new,"/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/cDC1_neo_phil_vs_neo_wt_for_plotting.csv")
+write.csv(df_new,file.path(DEGs_tables_CD45pos_all_cell_types_dir,"cDC1_neo_phil_vs_neo_wt_for_plotting.csv"))
 
-heatmap_logFC_goi("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/cDC1_neo_phil_vs_neo_wt_for_plotting.csv",genes_of_interest,
+heatmap_logFC_goi(file.path(DEGs_tables_CD45pos_all_cell_types_dir,"cDC1_neo_phil_vs_neo_wt_for_plotting.csv"),genes_of_interest,
                   "condition",genes_of_interest,c("genes"),
                   length(genes_of_interest),c("#F4062E"),c(genes="#F4062E"))
 
 ### cDC2
 #identify genes not present in the dataframe 
-df <- read.csv("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/cDC2_neo_phil_vs_neo_wt.csv")
+df <- read.csv(file.path(DEGs_tables_CD45pos_all_cell_types_dir,"cDC2_neo_phil_vs_neo_wt.csv"))
 df2 <- df[df$X %in% genes_of_interest,]
 missing_genes <- genes_of_interest[!genes_of_interest %in% df2$X]
 print(missing_genes)
@@ -111,15 +109,15 @@ gene3 <- c("Adgre5",0,0,0,0,1)
 df_new <- rbind(df2,gene1,gene2,gene3)
 rownames(df_new) <- df_new$X
 df_new$X <- NULL
-write.csv(df_new,"/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/cDC2_neo_phil_vs_neo_wt_for_plotting.csv")
+write.csv(df_new,file.path(DEGs_tables_CD45pos_all_cell_types_dir,"cDC2_neo_phil_vs_neo_wt_for_plotting.csv"))
 
-heatmap_logFC_goi("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/cDC2_neo_phil_vs_neo_wt_for_plotting.csv",genes_of_interest,
+heatmap_logFC_goi(file.path(DEGs_tables_CD45pos_all_cell_types_dir,"cDC2_neo_phil_vs_neo_wt_for_plotting.csv"),genes_of_interest,
                   "condition",genes_of_interest,c("genes"),
                   length(genes_of_interest),c("#F4062E"),c(genes="#F4062E"))
 
 ### neutrophils
 #identify genes not present in the dataframe 
-df <- read.csv("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/Neutrophils_neo_phil_vs_neo_wt.csv")
+df <- read.csv(file.path(DEGs_tables_CD45pos_all_cell_types_dir,"Neutrophils_neo_phil_vs_neo_wt.csv"))
 df2 <- df[df$X %in% genes_of_interest,]
 missing_genes <- genes_of_interest[!genes_of_interest %in% df2$X]
 print(missing_genes)
@@ -131,10 +129,22 @@ gene3 <- c("Clec4n",0,0,0,0,1)
 df_new <- rbind(df2,gene1,gene2,gene3)
 rownames(df_new) <- df_new$X
 df_new$X <- NULL
-write.csv(df_new,"/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/Neutrophils_neo_phil_vs_neo_wt_for_plotting.csv")
+write.csv(df_new,file.path(DEGs_tables_CD45pos_all_cell_types_dir,"Neutrophils_neo_phil_vs_neo_wt_for_plotting.csv"))
 
-heatmap_logFC_goi("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CD45pos/Neutrophils_neo_phil_vs_neo_wt_for_plotting.csv",genes_of_interest,
+heatmap_logFC_goi(file.path(DEGs_tables_CD45pos_all_cell_types_dir,"Neutrophils_neo_phil_vs_neo_wt_for_plotting.csv"),genes_of_interest,
                   "condition",genes_of_interest,c("genes"),
                   length(genes_of_interest),c("#F4062E"),c(genes="#F4062E"))
+
+##### DotPlot of Il1b, Il1a, Tgfb and Tnf in CD45 pos 
+obj <- readRDS(file.path(seurat_objects_dir,"Adult_and_Neo_P14_CD45enr_colon_WT_PHIL_anno.rds"))
+Idents(obj) <- "condition"
+sub <- subset(obj, idents = c("adult_wt","neo_P14_wt"))
+sub$anno_cond <- paste0(sub$annotation, "_",sub$condition)
+
+Idents(sub) <- "annotation"
+p <- DotPlot(sub, features = c("Il1b","Il1a","Tgfb1","Tnf","Vegfa"),dot.scale = 10, scale = FALSE, assay = "RNA",cols = c("white","darkred")) + 
+  theme(legend.title = element_text(size = 20), legend.text = element_text(size = 20)) + 
+  theme(title = element_text(size = 20))+ theme(axis.text = element_text(size = 10)) + theme(axis.text.x = element_text(angle = 90)) 
+
 
 

@@ -1,14 +1,12 @@
 ########## This code compares gene expression between CO and SI eosinophils of adults and neo P14 ##########
-# Figure S3
-
-##### Set up environment 
-setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
 
 ##### load objects 
-obj <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_LT.rds")
+obj <- readRDS(file.path(seurat_objects_dir,"Neo_P14_adult_eos_CO_SI_LT.rds"))
 
 ##### generate data frame with average expression of genes per condition
 average_expression <- AverageExpression(obj, return.seurat = FALSE, normalization.method = "LogNormalize",assays = "RNA", group.by = "condition")

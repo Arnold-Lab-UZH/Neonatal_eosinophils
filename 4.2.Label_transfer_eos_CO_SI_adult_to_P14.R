@@ -1,16 +1,14 @@
 ########## This code uses label transfer to integrate neo P14 CO and SI eosinophils and adult eosinophils from Gurtner et al 2022 ##########
-# Figure 3
-
-##### Set up environment 
-setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.4.Functions_DEGs.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir, "1.6.Functions_DEGs.R"))
 
 ##### read in R objects 
-adult_eosSS <- readRDS("/data/khandl/common/Nature_paper_data/eosinophils_steadystate.rds")
-neo_eos <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_eos_colon_SI_anno.rds")
+adult_eosSS <- readRDS(file.path(seurat_objects_Gurtner_et_al,"eosinophils_steadystate.rds"))
+neo_eos <- readRDS(file = file.path(seurat_objects_dir,"Neo_P14_eos_colon_SI_anno.rds"))
 
 ##### extract eosinophils from neo_eos
 Idents(neo_eos) <- "annotation"
@@ -59,7 +57,7 @@ p1 + p2
 ## chose to only take predicted ids if they have a score higher than 0.6
 #plot prediction score per condition
 p <- VlnPlot(neo.query, features = "predicted.celltype.score", group.by = "condition")
-ggsave(file = "/scratch/khandl/Neonatal_eosinophils/figures/CO_SI_LT/prediction_score_neo_CO_SI.svg", plot = p, width = 10, height = 6)
+ggsave(file = file.path(integration_eos_plots_dir,"prediction_score_neo_CO_SI_label_transfer_with_adultss.svg"), plot = p, width = 10, height = 6)
 neo.query$celltype <- ifelse(neo.query$prediction.score.max > 0.6, neo.query$predicted.id, "non.defined")
 
 #add a meta.data column combining annotation and predicted.celltype 
@@ -92,10 +90,10 @@ heatmap_goi_coi(integrated, "annotation",top10,"RNA", c("immature_eos","circ_eos
                 c( immature_eos= "#E88A1A",circ_eos = "#E8E81A",B_eos="#10A069",precursor_eos="#26DFED",A_eos="#E81818",undefined="#A39F9F"),F,F)
 
 p <- VlnPlot(integrated, features = "nFeature_RNA",group.by = "annotation", cols = c("#10A069","#E8E81A","#26DFED","#E88A1A","#E81818","#F408D3"))
-ggsave(file = "/scratch/khandl/Neonatal_eosinophils/figures/CO_SI_LT/nFeature.svg", plot = p, width = 5, height = 6)
+ggsave(file = file.path(integration_eos_plots_dir,"nFeature_CO_SI_adult_neo_label_tranfer.svg"), plot = p, width = 5, height = 6)
 
 p <- VlnPlot(integrated, features = "percent.mt",group.by = "annotation",cols = c("#10A069","#E8E81A","#26DFED","#E88A1A","#E81818","#F408D3"))
-ggsave(file = "/scratch/khandl/Neonatal_eosinophils/figures/CO_SI_LT/percent.mt.svg", plot = p, width = 5, height = 6)
+ggsave(file = file.path(integration_eos_plots_dir,"percent_mt_CO_SI_adult_neo_label_tranfer.svg"), plot = p, width = 5, height = 6)
 
 ## rename non-defined clusters as A-eos 
 current.cluster.ids <- c("basal eosinophils", "circulating eosinophils","eosinophil progenitors","immature eosinophils",
@@ -105,17 +103,17 @@ new.cluster.ids <- c("B_eos", "circ_eos","precursor_eos","immature_eos",
 integrated$annotation <- plyr::mapvalues(x = integrated$annotation, from = current.cluster.ids, to = new.cluster.ids)
 
 p <- DimPlot(integrated, group.by = "annotation",cols = c("#E81818","#10A069","#E8E81A", "#E88A1A","#26DFED"))
-ggsave(file = "/scratch/khandl/Neonatal_eosinophils/figures/CO_SI_LT/umap_annotated.svg", plot = p, width = 10, height = 6)
+ggsave(file = file.path(integration_eos_plots_dir,"umap_annotated_CO_SI_neo_adult_LT.svg"), plot = p, width = 10, height = 6)
 
 p <- DimPlot(integrated, group.by = "condition",cols = c("#A39F9F","#A39F9F","#A39F9F", "#A39F9F","#870C27",
                                                          "#240FF2","#A39F9F","#A39F9F"))
-ggsave(file = "/scratch/khandl/Neonatal_eosinophils/figures/CO_SI_LT/umap_neo.svg", plot = p, width = 10, height = 6)
+ggsave(file = file.path(integration_eos_plots_dir,"umap_annotated_CO_SI_neo_adult_LT_neo_highlighted.svg"), plot = p, width = 10, height = 6)
 
 p <- DimPlot(integrated, group.by = "annotation",split.by= "condition",cols = c("#E81818","#10A069","#E8E81A", "#E88A1A","#26DFED"))
-ggsave(file = "/scratch/khandl/Neonatal_eosinophils/figures/CO_SI_LT/umap_split_by_cond.svg", plot = p, width = 10, height = 6)
+ggsave(file =file.path(integration_eos_plots_dir,"umap_annotated_CO_SI_neo_adult_LT_split.svg"), plot = p, width = 10, height = 6)
 
 ##### save R objects 
-saveRDS(integrated, "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_LT.rds")
+saveRDS(integrated, file.path(seurat_objects_dir,"Neo_P14_adult_eos_CO_SI_LT.rds"))
 
 
 

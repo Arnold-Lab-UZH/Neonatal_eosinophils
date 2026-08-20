@@ -1,14 +1,12 @@
 ########## This code infers pseudotime trajectory onto the adult and neo P14 eosinophils and analyses DEGs along the pseudotime between ages ##########
-# Figure 2 
-
-##### Set up environment 
-setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
 
 ### load objects 
-obj <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_blood_BM_spleen_LT.rds")
+obj <- readRDS(file.path(seurat_objects_dir,"Neo_P14_adult_eos_CO_SI_blood_BM_spleen_LT.rds"))
 
 # remove spleen and stomach 
 Idents(obj) <- "condition"
@@ -33,19 +31,19 @@ obj <- FindClusters(obj, resolution = 0.5, cluster.name = "mnn.clusters", algori
 obj <- RunUMAP(obj, reduction = "integrated.mnn", dims = 1:5, reduction.name = "umap")
 DimPlot(obj,reduction = "umap",group.by = "age",raster=FALSE)
 p <- DimPlot(obj,reduction = "umap",group.by = "annotation",raster=FALSE, cols = c("#10A069","#10A069", "#26DFED","#E88A1A", "#E81818" ))
-ggsave(paste0("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/umap_annotated.svg"), width = 8, height = 5, plot = p)
+ggsave(file.path(pseudotime_trajectory_eos_plots_dir,"umap_annotated.svg"), width = 8, height = 5, plot = p)
 
 obj <- JoinLayers(obj)
 
 ## plot marker genes 
 p <- FeaturePlot(obj, features = "Cd80", reduction = "umap", pt.size = 0.1) + scale_color_gradientn( colours = c('grey', 'darkred'),  limits = c(0,5))
-ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/Cd80.svg", width = 8, height = 5, plot = p)
+ggsave(file.path(pseudotime_trajectory_eos_plots_dir,"Cd80_umap.svg"), width = 8, height = 5, plot = p)
 p <- FeaturePlot(obj, features = "Cd274", reduction = "umap", pt.size = 0.1) + scale_color_gradientn( colours = c('grey', 'darkred'),  limits = c(0,5))
-ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/Cd27.svg", width = 8, height = 5, plot = p)
+ggsave(file.path(pseudotime_trajectory_eos_plots_dir,"Cd27_umap.svg"), width = 8, height = 5, plot = p)
 p <- FeaturePlot(obj, features = "Ear1", reduction = "umap", pt.size = 0.1) + scale_color_gradientn( colours = c('grey', 'darkred'),  limits = c(0,5))
-ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/Ear1.svg", width = 8, height = 5, plot = p)
+ggsave(file.path(pseudotime_trajectory_eos_plots_dir,"Ear1_umap.svg"), width = 8, height = 5, plot = p)
 p <- FeaturePlot(obj, features = "Epx", reduction = "umap", pt.size = 0.1) + scale_color_gradientn( colours = c('grey', 'darkred'),  limits = c(0,5))
-ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/Epx.svg", width = 8, height = 5, plot = p)
+ggsave(file.path(pseudotime_trajectory_eos_plots_dir,"Epx_umap.svg"), width = 8, height = 5, plot = p)
 
 current.cluster.ids <- c("basal eosinophils","intestinal eosinophils","immature eosinophils","eosinophil progenitors","circulating eosinophils")
 new.cluster.ids <-  c("basal-like eosinophils","intestinal eosinophils","immature eosinophils","eosinophil progenitors","basal-like eosinophils")
@@ -53,11 +51,10 @@ obj$annotation <- plyr::mapvalues(x = obj$annotation, from = current.cluster.ids
 
 Idents(obj) <- "annotation"
 p <- VlnPlot(obj, features = "Cd274", pt.size = 0,cols = c("#E88A1A","#10A069", "#26DFED", "#E81818" ))
-ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/vln_cd274.svg", width = 8, height = 5, plot = p)
+ggsave(file.path(pseudotime_trajectory_eos_plots_dir,"vln_cd274.svg"), width = 8, height = 5, plot = p)
 
 p <- VlnPlot(obj, features = "Cd80",pt.size = 0, cols = c("#E88A1A","#10A069", "#26DFED", "#E81818" ))
-ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/vln_cd80.svg", width = 8, height = 5, plot = p)
-
+ggsave(file.path(pseudotime_trajectory_eos_plots_dir,"vln_cd80.svg"), width = 8, height = 5, plot = p)
 
 ## degs from only the neonatal dataset 
 Idents(obj) <- "age"
@@ -77,7 +74,7 @@ Idents(sub) <- "annotation"
 p <- DotPlot(sub, features = top10,dot.scale = 10, scale = FALSE, assay = "RNA",cols = c("white","darkred")) + 
   theme(legend.title = element_text(size = 20), legend.text = element_text(size = 20)) + 
   theme(title = element_text(size = 20))+ theme(axis.text = element_text(size = 10)) + theme(axis.text.x = element_text(angle = 45)) 
-ggsave("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/DEGs_neo.svg", width = 20, height = 6, plot = p)
+ggsave(file.path(pseudotime_trajectory_eos_plots_dir,"DEGs_neo.svg"), width = 20, height = 6, plot = p)
 
 ##### Follow the condiment workflow 
 # following this vignette: https://hectorrdb.github.io/condimentsPaper/articles/TGFB.html
@@ -116,7 +113,7 @@ p <- ggplot(df, aes(x = umap_1, y = umap_2, col = slingPseudotime_1)) +
   labs(col = "Pseudotime") +
   geom_path(data = curve$s[curve$ord, ] %>% as.data.frame(),
             col = "black", size = 1.5) +  theme_classic(base_size = 25) 
-ggsave(paste0("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/umap_pseudotime1.svg"), width = 8, height = 5, plot = p)
+ggsave(file.path(pseudotime_trajectory_eos_plots_dir,"umap_pseudotime1.svg"), width = 8, height = 5, plot = p)
 
 ### Differential progression between neo P14 and adult 
 ## density plot 
@@ -130,7 +127,7 @@ p <- ggplot(df, aes(x = slingPseudotime_1)) +
   )) +
   scale_fill_brewer(palette = "Accent") +
   scale_color_brewer(palette = "Accent")
-ggsave(paste0("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/density_plot.svg"), width = 8, height = 5, plot = p)
+ggsave(file.path(pseudotime_trajectory_eos_plots_dir,"density_plot.svg"), width = 8, height = 5, plot = p)
 
 # statistical difference between ages 
 # KS = Kolmogorow-Smirnow-Test
@@ -147,10 +144,10 @@ BPPARAM$workers <- 12
 sling <- fitGAM(counts = sling, nknots = 5, 
                 conditions =conditions, parallel = T, BPPARAM = BPPARAM,genes = genes)
 
-saveRDS(sling, "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_blood_BM_spleen_LT_pseutodime.rds")
-sling <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_blood_BM_spleen_LT_pseutodime.rds")
+saveRDS(sling, file.path(seurat_objects_dir,"Neo_P14_adult_eos_CO_SI_blood_BM_spleen_LT_pseutodime.rds"))
+sling <- readRDS(file.path(seurat_objects_dir,"Neo_P14_adult_eos_CO_SI_blood_BM_spleen_LT_pseutodime.rds"))
 
-## differential expresssion between conditions
+## differential expression between conditions
 condRes <- conditionTest(sling, l2fc = log2(2))
 condRes$padj <- p.adjust(condRes$pvalue, "fdr")
 mean(condRes$padj <= 0.05, na.rm = TRUE)
@@ -161,7 +158,7 @@ condRes_only_sig <- condRes[!is.na(condRes$waldStat),]
 condRes_only_sig <- condRes_only_sig[condRes_only_sig$padj <= 0.05,]
 condRes_only_sig$gene <- rownames(condRes_only_sig)
 condRes_only_sig <- condRes_only_sig[order(condRes_only_sig$waldStat, decreasing = TRUE),]
-write.csv(condRes_only_sig, "/scratch/khandl/Neonatal_eosinophils/data_files/pseudotime/DEGs_neo_P14_vs_adult_over_pseudotime_statistics.csv")
+write.csv(condRes_only_sig, file.path(pseudotime_trajectory_eos_tables_dir,"DEGs_neo_P14_vs_adult_over_pseudotime_statistics.csv"))
 
 ### Visiualise genes of interest along pseudotime 
 
@@ -173,7 +170,7 @@ for (i in goi) {
                      alpha = 1, border = TRUE, curvesCols = c("#7F7F7C","#8A181A")) +
     scale_color_manual(values = c("#7F7F7C","#8A181A")) +
     ggtitle(i)
-  ggsave(paste0("/scratch/khandl/Neonatal_eosinophils/figures/pseudotime/",i,".pdf"), width = 10, height = 6, plot = p)
+  ggsave(paste0(file.path(pseudotime_trajectory_eos_plots_dir),"/", i,"_pseudotime_plot.svg"), width = 10, height = 6, plot = p)
 }
 
 ## plot all genes in hetmap 
@@ -215,9 +212,9 @@ genes_of_interest <- c("Gapdh","Eno1","Enox2","Myc","Atp13a3","Hdac8","Dgkh","Dg
                        "Col1a1","Col3a1","Mmp8", #ECM remodeling
                        "Prg2","Epx","Ear1","Ear2","Ear6", #Granule proteins
                        "S100a8","S100a9","Lyz1","Lyz2","Acod1", #AMPs
-                       "Cd63", #Secretor activit
+                       "Cd63", #Secretor activity
                        "St3gal5","Pomgnt1", #Sialyltransferases
-                       "mt-Cytb","mt-Nd2","mt-Co1","mt-Atp8", #Mitochondrial respoiratory chain 
+                       "mt-Cytb","mt-Nd2","mt-Co1","mt-Atp8", #Mitochondrial respiratory chain 
                        "Vcan","Sdk1"#adhesion
 )
 

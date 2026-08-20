@@ -1,15 +1,15 @@
-########## This code uses label transfer to integrate neo P14 eosinophils from all tissues (CO, SI, blood, BM, spleen) and adult eosinophils from Gurtner et al 2022 ##########
-
-##### Set up environment 
-setwd("/home/khandl")
+########## This code integrates and clusters neo P14 eosinophils from all tissues (CO, SI, blood, BM, spleen) and adult eosinophils from Gurtner et al 2022 ##########
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir, "1.6.Functions_DEGs.R"))
 
 ##### read in R objects 
-neo_gut <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_eos_colon_SI_anno.rds")
-adult_eosSS <- readRDS("/data/khandl/common/Nature_paper_data/eosinophils_steadystate.rds")
-neo_bm_spleen_blood <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_eos_blood_bone_marrow_spleen_annotated.rds")
+neo_gut <- readRDS(file = file.path(seurat_objects_dir,"Neo_P14_eos_colon_SI_anno.rds"))
+adult_eosSS <- readRDS(file.path(seurat_objects_Gurtner_et_al,"eosinophils_steadystate.rds"))
+neo_bm_spleen_blood <- readRDS(file.path(seurat_objects_dir,"Neo_P14_eos_blood_bone_marrow_spleen_annotated.rds"))
 
 ##### extract eosinophils from neo objects
 Idents(neo_gut) <- "annotation"
@@ -60,14 +60,14 @@ DimPlot(neo,reduction = "umap",group.by = "seurat_clusters",combine = FALSE, lab
 ##### marker expression
 Idents(neo) <- "seurat_clusters"
 DotPlot(neo, features = c("Mki67","Epx","Ear1","Ear2","Prg2",
-                               "Alox15","Aldh2","S100a9","S100a6","S100a10","Il5",
-                               "Retnla","Ccl9","Il1rl1","Cd24a",
-                               "Mmp9","Icosl","Il4","Tgfb1","Pirb","Rara",
-                               "Cd80","Ccl3","Il1b","Cxcl2","Cd274","Tnf","Il16"), scale = TRUE,cols = c("white","darkred"), dot.scale = 8) + theme(axis.text.x = element_text(angle = 90)) 
+                          "Alox15","Aldh2","S100a9","S100a6","S100a10","Il5",
+                          "Retnla","Ccl9","Il1rl1","Cd24a",
+                          "Mmp9","Icosl","Il4","Tgfb1","Pirb","Rara",
+                          "Cd80","Ccl3","Il1b","Cxcl2","Cd274","Tnf","Il16"), scale = TRUE,cols = c("white","darkred"), dot.scale = 8) + theme(axis.text.x = element_text(angle = 90)) 
 
 ##### apply Eos score based on Gurtner et al 
 ### read in object 
-adult_eosSS <- readRDS("/data/khandl/common/Nature_paper_data/eosinophils_steadystate.rds")
+adult_eosSS <- readRDS(file.path(seurat_objects_Gurtner_et_al,"eosinophils_steadystate.rds"))
 adult_eosSS$annotation <- adult_eosSS$seurat_clusters
 
 ### DEGs
@@ -118,5 +118,3 @@ obj <- NormalizeData(obj, normalization.method = "LogNormalize", scale.factor = 
 Idents(obj) <- "annotation"
 markers <- FindAllMarkers(object = obj, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, assay = "RNA", slot = "data")
 View(markers %>% group_by(cluster) %>% top_n(n =50, wt = avg_log2FC))
-
-     

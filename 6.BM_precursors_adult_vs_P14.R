@@ -1,24 +1,22 @@
 ########## This code compares BM derived precursors between adults and neo P14 ##########
-# Figure S2 
-
-##### Set up environment 
-setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.2.Functions_preprocessing.R")
-source("~/Projects/Neonatal_eosinophils/1.3.Functions_annotation.R")
-source("~/Projects/Neonatal_eosinophils/1.4.Functions_DEGs.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir, "1.4.Functions_preprocessing.R"))
+source(file.path(base_dir, "1.5.Functions_annotation.R"))
+source(file.path(base_dir, "1.6.Functions_DEGs.R"))
 
-##### take BM data from Gurtner et al, and extract precursors from the BM 
+##### take BM data from Gurtner et al, and extract precursors from the BM from GEO GSE182001
 adult_bm_all <- create_seurat_from_condition_old_WTA_version(
-  path_to_st_file = file.path("/data/khandl/raw_data", "neo_other_organs", "Eos1_ST_SampleTag06_mm_bonemarrow_Expression_Data.st"), 
+  path_to_st_file = file.path(raw_Mm_il5tg_data, "GSM5515945_bonemarrow.st"), 
   project = "adult_bm_all", condition = "adult_bm_all",3,100)
-adult_bm_all$percent.mt <- PercentageFeatureSet(adult_bm_all, pattern = "^mt.")
+adult_bm_all$percent.mt <- PercentageFeatureSet(adult_bm_all, pattern = "^mt-")
 adult <-adult_bm_all
 
 ##### read in neo BM object 
-neo <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_eos_blood_bone_marrow_spleen_annotated.rds")
+neo <- readRDS(file.path(seurat_objects_dir,"Neo_P14_eos_blood_bone_marrow_spleen_annotated.rds"))
 
 #extract BM  
 Idents(neo) <- "condition"
@@ -30,7 +28,7 @@ adult <- FindVariableFeatures(adult)
 adult <- ScaleData(adult,vars.to.regress = c("nFeature_RNA","nCount_RNA","percent.mt"))
 adult <- RunPCA(adult)
 
-##### merge adult and noe 
+##### merge adult and neo 
 merged <- merge(neo, y = c(adult), add.cell.ids = c("neo","adult"))
 
 merged <- JoinLayers(merged)
@@ -76,9 +74,9 @@ Idents(obj) <- "mnn.clusters"
 lapply(cell.types, function(x) project_annotation_to_umap_fastMNN(x, results, obj))
 
 ### extract eos and precursor clusters 
-Idents(obj) <- "seurat_clusters"
+Idents(obj) <- "mnn.clusters"
 sub <- subset(obj, idents = c(8,9,13,12,14) )
-DimPlot(sub, group.by = "seurat_clusters")
+DimPlot(sub, group.by = "mnn.clusters")
 
 ##### reculster 
 obj <- sub
@@ -98,12 +96,12 @@ obj <- JoinLayers(obj)
 mouse.se <- celldex::ImmGenData()
 results <- SingleR(test = as.SingleCellExperiment(obj, assay = "RNA"), ref = mouse.se, labels = mouse.se$label.main)
 cell.types <- unique(results$pruned.labels)
-Idents(obj) <- "seurat_clusters"
+Idents(obj) <- "mnn.clusters"
 lapply(cell.types, function(x) project_annotation_to_umap(x, results, obj))
 
 ### DEGs 
 obj <- NormalizeData(obj, normalization.method = "LogNormalize",scale.factor = 10000,margin = 1, assay = "RNA")
-Idents(obj) <- "seurat_clusters"
+Idents(obj) <- "mnn.clusters"
 markers <- FindAllMarkers(object = obj, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, assay = "RNA", layer = "data")
 View(markers %>% group_by(cluster) %>% top_n(n =10, wt = avg_log2FC))
 
@@ -132,48 +130,47 @@ DotPlot(obj, features = marker,dot.scale = 10, scale = TRUE, assay = "RNA") +
 FeaturePlot(obj, features = c("Epx","Prg3","Cd55","Hlf","Cd177","Flt3","Cd34","Ly6a","Gata1"),raster=FALSE,reduction = "umap")
 
 ##### extract cluster 4 and 5 
-Idents(obj) <- "seurat_clusters"
+Idents(obj) <- "mnn.clusters"
 sub <- subset(obj, idents = c(4,5) )
-DimPlot(sub, group.by = "seurat_clusters" )
+DimPlot(sub, group.by = "mnn.clusters" )
 
 ### rename clusters
 current.cluster.ids <- c(4,5)
 new.cluster.ids <- c("Granulocytic_progenitor","Multipotntial_progenitor")
-sub$annotation <- plyr::mapvalues(x = sub$seurat_clusters, from = current.cluster.ids, to = new.cluster.ids)
+sub$annotation <- plyr::mapvalues(x = sub$mnn.clusters, from = current.cluster.ids, to = new.cluster.ids)
 p <- DimPlot(sub, group.by = "annotation", label = TRUE, split.by = "condition")
-ggsave(file = "/scratch/khandl/Neonatal_eosinophils/figures/BM_GMP_MMP/umap_split_by_cond.svg", plot = p, width = 10, height = 6)
+ggsave(file = file.path(BM_precursor_plots_dir,"umap_split_by_cond.svg"), plot = p, width = 10, height = 6)
 
 FeaturePlot(sub, features = c("Hlf","Hoxa9", "Elane","Prtn3"),raster=FALSE,reduction = "umap")
 
 sub <- JoinLayers(sub)
-
-## save R object
-saveRDS(sub,"/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_GMP_MMP_BM.rds")
+obj <- sub
 
 ##### DEG analysis neo P14 vs. adult 
-obj <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_GMP_MMP_BM.rds")
-
 Idents(obj) <- "annotation"
 sub <- subset(obj, idents = "Granulocytic_progenitor")
 Idents(sub) <- "condition"
-DEG_to_csv_two_cond(sub,"NEO_P14_bm","adult_bm_all",FALSE,0.25,paste0("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_MMP_GMP/Granulocytic_progenitor_neo_vs_adult.csv") )
+DEG_to_csv_two_cond(sub,"NEO_P14_bm","adult_bm_all",FALSE,0.25,
+                    paste0(file.path(BM_precursor_tables_dir,"Granulocytic_progenitor_neo_vs_adult.csv") ))
 
 sub <- subset(obj, idents = "Multipotntial_progenitor")
 Idents(sub) <- "condition"
-DEG_to_csv_two_cond(sub,"NEO_P14_bm","adult_bm_all",FALSE,0.25,paste0("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_MMP_GMP/Multipotntial_progenitor_neo_vs_adult0.25.csv") )
+DEG_to_csv_two_cond(sub,"NEO_P14_bm","adult_bm_all",FALSE,0.25,
+                    paste0(file.path(BM_precursor_tables_dir,"Multipotntial_progenitor_neo_vs_adult0.25.csv") ))
 
 ##### plot granule protein genes in a dotplot 
-obj <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_GMP_MMP_BM.rds")
-
 Idents(obj) <- "annotation"
 GMP <- subset(obj, idents = "Granulocytic_progenitor")
 MPP <- subset(obj, idents = "Multipotntial_progenitor")
 
 Idents(GMP) <- "condition"
 p <- DotPlot(GMP, features = c("Prg2","Prg3",  "Epx", "Ear6", "Ear1", "Ear2"),scale = FALSE,cols = c("lightblue","darkred"), dot.scale = 15) 
-ggsave("/scratch/khandl/Neonatal_eosinophils/figures/BM_GMP_MMP/GMP_granulogenesis_dotplot.svg", width = 8, height = 5, plot = p)
+ggsave(file.path(BM_precursor_plots_dir,"GMP_granulogenesis_dotplot.svg"), width = 8, height = 5, plot = p)
 
 Idents(MPP) <- "condition"
 p <- DotPlot(MPP, features = c("Prg2","Prg3",  "Epx", "Ear6", "Ear1", "Ear2"),scale = FALSE,cols = c("lightblue","darkred"), dot.scale = 15)
-ggsave("/scratch/khandl/Neonatal_eosinophils/figures/BM_GMP_MMP/MPP_granulogenesis_dotplot.svg", width = 8, height = 5, plot = p)
+ggsave(file.path(BM_precursor_plots_dir,"MPP_granulogenesis_dotplot.svg"), width = 8, height = 5, plot = p)
+
+##### save R object
+saveRDS(obj,file.path(seurat_objects_dir,"Neo_P14_adult_GMP_MMP_BM.rds"))
 

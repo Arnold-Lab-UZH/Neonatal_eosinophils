@@ -1,10 +1,10 @@
 ########## This code plots FACS data along a trajectory P0-Adult #####
-##### Set up environment 
-setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.9.Functions_FACS_data_plotting.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir, "1.11.Functions_FACS_data_plotting.R"))
 
 ##### generate plots for each measurement 
 measurements_all <- c("Eos_freq","CD63_MFI","MHCII_MFI","SigF_MFI","CD11b_MFI","CD80_MFI",
@@ -12,21 +12,19 @@ measurements_all <- c("Eos_freq","CD63_MFI","MHCII_MFI","SigF_MFI","CD11b_MFI","
                       "Active_eos_freq","CD9_freq","CD63_freq","CD80_freq","CD101_freq",
                       "CD16_freq","CD107a_freq")
 
-measurements_all <- c("PDL1_freq")
-
 for (i in measurements_all) {
   FACS_plotting_heatmap_line_graph_and_stats_along_time_points(
-    input_path = "/Users/handler/Documents/10.FACS/1.FACS_data_neonatal/1.Data/",
+    input_path = file.path(FACS_data,"/"),
     measurement = i,
-    output_path = "/Users/handler/Documents/10.FACS/1.FACS_data_neonatal/2.Figures/"
+    output_path = file.path(FACS_plotting_plots_dir,"/")
   )
 }
 
 for (i in measurements_all) {
   FACS_plotting_heatmap_line_graph_and_stats_along_pseudotime(
-    input_path = "/Users/handler/Documents/10.FACS/1.FACS_data_neonatal/1.Data/",
+    input_path = file.path(FACS_data,"/"),
     measurement = i,
-    output_path = "/Users/handler/Documents/10.FACS/1.FACS_data_neonatal/2.Figures/"
+    output_path = file.path(FACS_plotting_plots_dir,"/")
   )
 }
 
@@ -38,32 +36,32 @@ measurements_freq <- c("Eos_freq","Active_eos_freq","CD9_freq","CD63_freq","CD80
 
 ## MFI measurements 
 FACS_plotting_heatmap_tissue_of_interest_non_scaled(
-  input_path =  "/Users/handler/Documents/10.FACS/1.FACS_data_neonatal/1.Data/", 
+  input_path = file.path(FACS_data,"/"),
   tissue_oi = "CO_" ,
   measurements = measurements_mfi,
-  output_path ="/Users/handler/Documents/10.FACS/1.FACS_data_neonatal/2.Figures/Colon/",
+  output_path = file.path(FACS_plotting_plots_dir,"/"),
   id = "MFI")
 
 FACS_plotting_heatmap_tissue_of_interest_scaled(
-  input_path =  "/Users/handler/Documents/10.FACS/1.FACS_data_neonatal/1.Data/", 
+  input_path = file.path(FACS_data,"/"),
   tissue_oi = "CO_" ,
   measurements = measurements_mfi,
-  output_path ="/Users/handler/Documents/10.FACS/1.FACS_data_neonatal/2.Figures/Colon/",
+  output_path = file.path(FACS_plotting_plots_dir,"/"),
   id = "MFI")
 
 ## freq measurements 
 FACS_plotting_heatmap_tissue_of_interest_non_scaled(
-  input_path =  "/Users/handler/Documents/10.FACS/1.FACS_data_neonatal/1.Data/", 
+  input_path = file.path(FACS_data,"/"),
   tissue_oi = "CO_" ,
   measurements = measurements_freq,
-  output_path ="/Users/handler/Documents/10.FACS/1.FACS_data_neonatal/2.Figures/Colon/",
+  output_path = file.path(FACS_plotting_plots_dir,"/"),
   id = "Freq")
 
 FACS_plotting_heatmap_tissue_of_interest_scaled(
-  input_path =  "/Users/handler/Documents/10.FACS/1.FACS_data_neonatal/1.Data/", 
+  input_path = file.path(FACS_data,"/"),
   tissue_oi = "CO_" ,
   measurements = measurements_freq,
-  output_path ="/Users/handler/Documents/10.FACS/1.FACS_data_neonatal/2.Figures/Colon/",
+  output_path = file.path(FACS_plotting_plots_dir,"/"),
   id = "Freq")
 
 

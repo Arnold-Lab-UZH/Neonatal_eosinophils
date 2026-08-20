@@ -1,14 +1,13 @@
 ########## This code clusters and annotates cells from SI and colon eosinophil enriched datasets ##########
 
-##### Set up environment 
-setwd("/home/khandl")
-
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.3.Functions_annotation.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir,"1.5.Functions_annotation.R"))
 
 ##### read in object 
-obj <- readRDS(file = "/scratch/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_eos_colon_SI.rds")
+obj <- readRDS(file = file.path(seurat_objects_dir,"Neo_P14_eos_colon_SI.rds"))
 
 ##### pre-processing and clustering 
 obj <- NormalizeData(obj)
@@ -58,4 +57,4 @@ obj$annotation <- plyr::mapvalues(x = obj$seurat_clusters, from = current.cluste
 DimPlot(obj, group.by = "annotation", label = TRUE)
 
 ##### save objects 
-saveRDS(obj, "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_eos_colon_SI_anno.rds")
+saveRDS(obj, file.path(seurat_objects_dir,"Neo_P14_eos_colon_SI_anno.rds"))

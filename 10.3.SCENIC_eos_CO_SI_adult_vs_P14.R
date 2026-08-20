@@ -1,15 +1,13 @@
 ######### This code rund SCENIC between adult and neo P14 eos from the CO and SI ##########
-# Figure S3 
-
-##### Set up environment 
-setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.7.Functions_GSEA_PROGENy_SCENIC.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir, "1.9.Functions_GSEA_PROGENy_SCENIC.R"))
 
 ### load seurat objects 
-obj <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_LT.rds")
+obj <- readRDS(file.path(seurat_objects_dir,"Neo_P14_adult_eos_CO_SI_LT.rds"))
 
 ## extract only CO and SI 
 Idents(obj) <- "condition"
@@ -18,22 +16,16 @@ obj <- subset(obj, idents = c("adult_colon","adult_small_int","NEO_P14_colon","N
 ##### download the motive databases manually and scp to science apps 
 #https://resources.aertslab.org/cistarget/databases/old/mus_musculus/mm9/refseq_r45/mc9nr/gene_based/
 
-#scp /Users/handler/Downloads/mm9-500bp-upstream-7species.mc9nr.feather khandl@cluster.s3it.uzh.ch:data/common/SCENIC
-#scp /Users/handler/Downloads/mm9-tss-centered-10kb-7species.mc9nr.feather khandl@cluster.s3it.uzh.ch:data/common/SCENIC
-
 ########## all clusters combined ##########
-setwd("/scratch/khandl/Neonatal_eosinophils/data_files/SCENIC/CO_SI_eos_adult_vs_neoP14/") 
-
 ### Initialize settings
 exprMat <- as.matrix(obj[["RNA"]]$counts)
 cellInfo <- obj@meta.data
 
 colnames(cellInfo)[which(colnames(cellInfo)=="condition")] <- "CellType"
-dir.create("int")
-saveRDS(cellInfo, file="int/cellInfo.Rds")
+saveRDS(cellInfo, file=file.path(file.path(seurat_objects_dir),"SCENIC_neo_adult_eos_co_si.Rds"))
 
 org="mgi" # or hgnc, or dmel
-dbDir="/home/khandl/data/common/SCENIC" # RcisTarget databases location
+dbDir=SCENIC_support_files # RcisTarget databases location
 myDatasetTitle="SCENIC all eos" # choose a name for your analysis
 data(defaultDbNames)
 dbs <- defaultDbNames[[org]]
@@ -80,9 +72,9 @@ nPcs <- c(5,15,50)
 scenicOptions@settings$seed <- 123 # same seed for all of them
 
 runSCENIC_4_aucell_binarize(scenicOptions, skipBoxplot = TRUE, skipHeatmaps = TRUE, skipTsne = TRUE)
-saveRDS(scenicOptions, file="int/scenicOptions.Rds") 
+saveRDS(scenicOptions, file=file.path(file.path(seurat_objects_dir),"SCENIC_neo_adult_eos_co_si.Rds"))
 
-scenicOptions <- readRDS(file="int/scenicOptions.Rds") 
+scenicOptions <- readRDS(file=file.path(file.path(seurat_objects_dir),"SCENIC_neo_adult_eos_co_si.Rds"))
 
 ### plot regulons in heatmap
 regulonAUC <- loadInt(scenicOptions, "aucell_regulonAUC")
@@ -98,11 +90,11 @@ ComplexHeatmap::Heatmap(regulonActivity_byCellType_Scaled, name="Regulon activit
                         column_names_rot = 45)
 
 ##### save average regulon activity and scaled average regulon activity in csv file 
-write.csv(regulonActivity_byCellType, "/data/khandl/Neonatal_eosinophils/SCENIC/CO_SI_eos_adult_neoP14_regulons_actvity.csv")
+write.csv(regulonActivity_byCellType, file.path(Signaling_pathways_tables_dir,"SCENIC_CO_SI_eos_adult_neoP14_regulons_actvity.csv"))
 
 ##### plot the difference between adult and neo P14 CO in heatmap 
 ### load regulon activity file 
-regulonActivity_byCellType <- read.csv("/data/khandl/Neonatal_eosinophils/SCENIC/CO_SI_eos_adult_neoP14_regulons_actvity.csv")
+regulonActivity_byCellType <- read.csv(file.path(Signaling_pathways_tables_dir,"SCENIC_CO_SI_eos_adult_neoP14_regulons_actvity.csv"))
 rownames(regulonActivity_byCellType) <- regulonActivity_byCellType$X
 regulonActivity_byCellType$X <- NULL
 
@@ -136,7 +128,7 @@ print(ComplexHeatmap::Heatmap(regulonActivity_byCellType2, name=paste0("Diff reg
                               column_names_rot = 45,cluster_rows = FALSE, cluster_columns = FALSE,column_title = "Regulons"))
 
 ##### statistical analysis between adult and neo P14 
-scenicOptions <- readRDS(file="/scratch/khandl/Neonatal_eosinophils/data_files/SCENIC/CO_SI_eos_adult_vs_neoP14/int/scenicOptions.Rds") 
+scenicOptions <- readRDS(file=file.path(file.path(seurat_objects_dir),"SCENIC_neo_adult_eos_co_si.Rds"))
 regulonAUC <- loadInt(scenicOptions, "aucell_regulonAUC")
 regulonAUC <- regulonAUC[onlyNonDuplicatedExtended(rownames(regulonAUC)),]
 df <- as.data.frame(t(getAUC(regulonAUC)))

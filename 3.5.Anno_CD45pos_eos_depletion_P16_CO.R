@@ -1,14 +1,13 @@
 ########## This code clusters and annotates cells from CD45 enriched colon neo P16 after eosinophil depletion at day 5, 7, and 10 (Cre+) and Cre- as a control ##########
 
-##### Set up environment 
-setwd("/home/khandl")
-
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.3.Functions_annotation.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir,"1.5.Functions_annotation.R"))
 
 ##### read in object 
-obj <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P16_iDT_CREpos_CREneg.rds")
+obj <- readRDS(file = file.path(seurat_objects_dir,"Neo_P16_iDT_CREpos_CREneg.rds"))
 
 ##### remove low quality cells and doublets 
 VlnPlot(obj, features = "percent.mt")
@@ -82,4 +81,4 @@ obj <- subset(obj, idents =  c("Macrophages","B","Epithelial","DCs","Monocytes",
 DimPlot(obj ,group.by = "annotation", label= TRUE)
 
 ##### save objects 
-saveRDS(obj, "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P16_iDT_CREpos_CREneg_anno.rds")
+saveRDS(obj, file.path(seurat_objects_dir,"Neo_P16_iDT_CREpos_CREneg_anno.rds"))

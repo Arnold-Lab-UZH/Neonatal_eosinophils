@@ -1,15 +1,15 @@
 ########## This code uses label transfer to integrate neo P14 eosinophils from all tissues (CO, SI, blood, BM, spleen) and adult eosinophils from Gurtner et al 2022 ##########
 
-##### Set up environment 
-setwd("/home/khandl")
-
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir, "1.6.Functions_DEGs.R"))
 
 ##### read in R objects 
-neo_gut <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_eos_colon_SI_anno.rds")
-adult_eosSS <- readRDS("/home/khandl/data/common/Nature_paper_data/eosinophils_steadystate.rds")
-neo_bm_spleen_blood <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_eos_blood_bone_marrow_spleen_annotated.rds")
+neo_gut <- readRDS(file = file.path(seurat_objects_dir,"Neo_P14_eos_colon_SI_anno.rds"))
+adult_eosSS <- readRDS(file.path(seurat_objects_Gurtner_et_al,"eosinophils_steadystate.rds"))
+neo_bm_spleen_blood <- readRDS(file.path(seurat_objects_dir,"Neo_P14_eos_blood_bone_marrow_spleen_annotated.rds"))
 
 ##### extract eosinophils from neo objects
 Idents(neo_gut) <- "annotation"
@@ -137,7 +137,7 @@ DotPlot(adult, features = c("Mki67","Epx","Ear1","Ear2","Prg2",
 
 ##### apply Eos score based on Gurtner et al 
 ### read in object 
-adult_eosSS <- readRDS("/data/khandl/common/Nature_paper_data/eosinophils_steadystate.rds")
+adult_eosSS <- readRDS(file.path(seurat_objects_Gurtner_et_al,"eosinophils_steadystate.rds"))
 adult_eosSS$annotation <- adult_eosSS$seurat_clusters
 
 ### DEGs
@@ -146,59 +146,53 @@ Idents(adult_eosSS) <- "annotation"
 markers <- FindAllMarkers(object = adult_eosSS, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25, assay = "RNA", slot = "data")
 markers_df <- as.data.frame(markers %>% group_by(cluster) %>% top_n(n =10, wt = avg_log2FC))
 
-obj <- neo
 ## add the score to the seurat object 
 mouse_eos_genes <- list((markers_df[markers_df$cluster %in% "eosinophil progenitors",])$gene)
-obj <-AddModuleScore(obj, features= mouse_eos_genes,name = "precursors")
-names(x = obj[[]])
+neo <-AddModuleScore(neo, features= mouse_eos_genes,name = "precursors")
+names(x = neo[[]])
 
 mouse_eos_genes <- list((markers_df[markers_df$cluster %in% "intestinal eosinophils",])$gene)
-obj <-AddModuleScore(obj, features= mouse_eos_genes,name = "A_eos")
-names(x = obj[[]])
+neo <-AddModuleScore(neo, features= mouse_eos_genes,name = "A_eos")
+names(x = neo[[]])
 
 mouse_eos_genes <- list((markers_df[markers_df$cluster %in% "basal eosinophils",])$gene)
-obj <-AddModuleScore(obj, features= mouse_eos_genes,name = "B_eos")
-names(x = obj[[]])
+neo <-AddModuleScore(neo, features= mouse_eos_genes,name = "B_eos")
+names(x = neo[[]])
 
 mouse_eos_genes <- list((markers_df[markers_df$cluster %in% "circulating eosinophils",])$gene)
-obj <-AddModuleScore(obj, features= mouse_eos_genes,name = "Circ_eos")
-names(x = obj[[]])
+neo <-AddModuleScore(neo, features= mouse_eos_genes,name = "Circ_eos")
+names(x = neo[[]])
 
 mouse_eos_genes <- list((markers_df[markers_df$cluster %in% "immature eosinophils",])$gene)
-obj <-AddModuleScore(obj, features= mouse_eos_genes,name = "immature")
-names(x = obj[[]])
+neo <-AddModuleScore(neo, features= mouse_eos_genes,name = "immature")
+names(x = neo[[]])
 
 ### plot per condition with fixed scale 
-Idents(obj) <- "annotation"
-VlnPlot(obj, features = "immature1",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
-VlnPlot(obj, features = "precursors1",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
-VlnPlot(obj, features = "A_eos1",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
-VlnPlot(obj, features = "B_eos1",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
-VlnPlot(obj, features = "Circ_eos1",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
-VlnPlot(obj, features = "Cd274",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
-VlnPlot(obj, features = "Cd80",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
-
-##### save R objects 
-saveRDS(integrated, "/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_blood_BM_spleen_LT.rds")
-integrated <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_blood_BM_spleen_LT.rds")
+Idents(neo) <- "annotation"
+VlnPlot(neo, features = "immature1",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
+VlnPlot(neo, features = "precursors1",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
+VlnPlot(neo, features = "A_eos1",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
+VlnPlot(neo, features = "B_eos1",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
+VlnPlot(neo, features = "Circ_eos1",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
+VlnPlot(neo, features = "Cd274",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
+VlnPlot(neo, features = "Cd80",cols = c( "#10A069","#E81818","#E88A1A", "#26DFED","#E8E81A"), pt.size = 0)
 
 ##### DEGs B-eos neo vs. adult 
 current.cluster.ids <- c("adult_blood", "adult_bm","adult_colon","adult_small_int","adult_spleen","adult_spleen_ctrl","adult_stomach",
                          "NEO_P14_blood","NEO_P14_bm","NEO_P14_colon","NEO_P14_small_int","NEO_P14_spleen")
 new.cluster.ids <- c("adult", "adult","adult","adult","adult","adult","adult",
                      "neo","neo","neo","neo","neo")
-integrated$condition <- plyr::mapvalues(x = integrated$condition, from = current.cluster.ids, to = new.cluster.ids)
+integrated$condition2 <- plyr::mapvalues(x = integrated$condition, from = current.cluster.ids, to = new.cluster.ids)
 
 Idents(integrated) <- "annotation"
 b <- subset(integrated, idents = "basal eosinophils")
-Idents(b) <- "condition"
-DEG_to_csv_two_cond(b,"neo","adult",FALSE,0.25,"/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_basal_eos_neo_vs_adult.csv")
+Idents(b) <- "condition2"
+DEG_to_csv_two_cond(b,"neo","adult",FALSE,0.25,file.path(integration_eos_tables_dir,"DEGs_basal_eos_neo_vs_adult_after_label_transfer_all_tissues.csv"))
 
 Idents(integrated) <- "annotation"
 b <- subset(integrated, idents = "circulating eosinophils")
-Idents(b) <- "condition"
-DEG_to_csv_two_cond(b,"neo","adult",FALSE,0.25,"/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_circ_eos_neo_vs_adult.csv")
-
+Idents(b) <- "condition2"
+DEG_to_csv_two_cond(b,"neo","adult",FALSE,0.25,file.path(integration_eos_tables_dir,"DEGs_circ_eos_neo_vs_adult_after_label_transfer_all_tissues.csv"))
 
 ##### MDS plot of label transferred neo vs adult 
 ### per tissue 
@@ -235,7 +229,7 @@ group_labels <- levels(group)
 group_colors <- c("#1132F4","#F411E9","#11F421",  "#F4ED11","#F26B0F",
                   "#147BC1","#F1C2F2","#086621", "#EDE894","#9B7240")
 
-pdf("/scratch/khandl/eos_datasets_comp/MDS_comp_neo_adult.pdf",  width = 10, height = 7)
+pdf(file.path(integration_eos_plots_dir,"MDS_comp_neo_adult_all_tissues.pdf"),  width = 10, height = 7)
 plotMDS(y, pch = 16, col = group_colors, main = "MDS Plot",cex = 2)
 # Add legend (customize 'group_labels' and 'group_colors' as needed)
 #legend("topright", legend = group_labels, col = group_colors, pch = 16,cex = 1)
@@ -243,57 +237,6 @@ loc <- plotMDS(y, plot = FALSE)  # extract coordinates without plotting
 text(loc$x, loc$y, labels = colnames(y), pos = 4, cex = 0.6)
 dev.off() 
 
-### per annotation 
-obj <- integrated
-Idents(obj) <- "condition"
-obj <- subset(obj, idents = c("adult_blood","adult_bm","adult_colon","adult_small_int","adult_spleen_ctrl","NEO_P14_blood","NEO_P14_bm",
-                              "NEO_P14_colon","NEO_P14_small_int","NEO_P14_spleen"))
-
-current.cluster.ids <- c("adult_blood","adult_bm","adult_colon","adult_small_int","adult_spleen_ctrl","NEO_P14_blood","NEO_P14_bm",
-                         "NEO_P14_colon","NEO_P14_small_int","NEO_P14_spleen")
-new.cluster.ids <- c("adult","adult","adult","adult","adult","neo","neo",
-                     "neo","neo","neo")
-obj$age <- plyr::mapvalues(x = obj$condition, from = current.cluster.ids, to = new.cluster.ids)
-obj$anno_cond <- paste0(obj$annotation, "_",obj$age)
-
-Idents(obj) <- "anno_cond"
-av_merged <- AverageExpression(obj, return.seurat = FALSE, assays = "RNA", slot = "counts")
-av_merged_df <- as.data.frame(av_merged)
-
-av_merged_mtx <- as.matrix(av_merged_df)
-
-#Create DGEList object
-#group is dataset in this case
-group <- factor(c(colnames(av_merged_df)))
-y <- DGEList(counts=av_merged_mtx,group=group)
-y$samples
-#library size is number of feature genes in this case 
-print(barplot(y$samples$lib.size,names=colnames(y),las=2, main = "Barplot of library sizes"))
-#Remove lowly expressed genes
-keep <- filterByExpr(y, group=y$samples$group)
-y <- y[keep,]
-#Normalization
-y <- calcNormFactors(y)
-y$samples
-#we want to compare the groups to each other, which is the eos subtype in our case 
-design <- model.matrix(~group)
-group <- y$samples$group
-
-# matching colors
-group_labels <- levels(group)
-
-group_colors <- c("#10A069","#11F421", 
-                  "#E8E81A","#EDE894",
-                  "#26DFED", "#1132F4",
-                  "#E88A1A","#9B7240",
-                  "#E81818","#ED8597")
-
-pdf("/scratch/khandl/eos_datasets_comp/MDS_comp_neo_adult_anno.pdf",  width = 10, height = 7)
-plotMDS(y, pch = 16, col = group_colors, main = "MDS Plot",cex = 2)
-# Add legend (customize 'group_labels' and 'group_colors' as needed)
-legend("topright", legend = group_labels, col = group_colors, pch = 16,cex = 1)
-loc <- plotMDS(y, plot = FALSE)  # extract coordinates without plotting
-text(loc$x, loc$y, labels = colnames(y), pos = 4, cex = 0.6)
-dev.off() 
-
+##### save R objects 
+saveRDS(integrated, file.path(seurat_objects_dir,"Neo_P14_adult_eos_CO_SI_blood_BM_spleen_LT.rds"))
 

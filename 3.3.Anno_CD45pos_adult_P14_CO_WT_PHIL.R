@@ -1,14 +1,13 @@
 ########## This code clusters and annotates cells from CD45 enriched colon neo P14 and adult PHIL and WT datasets ##########
 
-##### Set up environment 
-setwd("/home/khandl")
-
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.3.Functions_annotation.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir,"1.5.Functions_annotation.R"))
 
 ##### load  object 
-obj <- readRDS(file = "/data/khandl/Neonatal_eosinophils/seurat_objects/Adult_and_Neo_P14_CD45enr_colon_WT_PHIL.rds")
+obj <- readRDS(file = file.path(seurat_objects_dir,"Adult_and_Neo_P14_CD45enr_colon_WT_PHIL.rds"))
 
 ##### remove low quality cells 
 Idents(obj) <- "condition"
@@ -33,7 +32,7 @@ mouse.se <- celldex::ImmGenData()
 results <- SingleR(test = as.SingleCellExperiment(obj), ref = mouse.se, labels = mouse.se$label.main)
 plotScoreHeatmap(results)
 cell.types <- unique(results$pruned.labels)
-Idents(merged) <- "seurat_clusters"
+Idents(obj) <- "seurat_clusters"
 lapply(cell.types, function(x) project_annotation_to_umap(x, results, obj))
 
 ### rename clusters 
@@ -264,10 +263,10 @@ DimPlot(subCl, group.by = "annotation", label = TRUE)
 
 ### remove doublets and mito high (named "remove")
 Idents(subCl) <- "annotation"
-subCl <- subset(subCl, idents = c("act_mig_DCs", "CD4_T","CD8_CCR7_T","CD8T_NKT","cDC1","cDC2",
+obj <- subset(subCl, idents = c("act_mig_DCs", "CD4_T","CD8_CCR7_T","CD8T_NKT","cDC1","cDC2",
                                   "Eosinophils","Epithelial","Fibroblasts","Endothelial","gamma_delta_T",
                                   "IgA_PC","IgM_IgD_matureB", "ILC2","ILC3", "Mono_Mac", "Mac1","Mac2", "Mast","Neutrophils","pDCs"))
 
 ##### save annotated object 
-saveRDS(obj, "/data/khandl/Neonatal_eosinophils/seurat_objects/Adult_and_Neo_P14_CD45enr_colon_WT_PHIL_anno.rds")
+saveRDS(obj, file.path(seurat_objects_dir,"Adult_and_Neo_P14_CD45enr_colon_WT_PHIL_anno.rds"))
 

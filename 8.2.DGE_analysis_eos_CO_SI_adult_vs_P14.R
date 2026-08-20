@@ -1,25 +1,22 @@
 ########## This code applies DGE analysis between adult and neo P14 CO and SI derived eosinophils ##########
-# Figure 3, Figure S3 and Figure 4
-
-##### Set up environment 
-setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.4.Functions_DEGs.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir, "1.6.Functions_DEGs.R"))
 
 ### load objects 
-obj <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_LT.rds")
+obj <- readRDS(file.path(seurat_objects_dir,"Neo_P14_adult_eos_CO_SI_LT.rds"))
 
 ##### DEG analysis 
 Idents(obj) <- "condition"
 
 ### colon CO 
-DEG_to_csv_two_cond(obj,"NEO_P14_colon","adult_colon",FALSE,0.25,"/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CO_SI_eos/CO_eos_neoP14_vs_adult.csv")
+DEG_to_csv_two_cond(obj,"NEO_P14_colon","adult_colon",FALSE,0.25,file.path(DEGs_tables_dir,"CO_eos_neoP14_vs_adult.csv"))
 
 ### small intestine SI 
-DEG_to_csv_two_cond(obj,"NEO_P14_small_int","adult_small_int",FALSE,0.25,"/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CO_SI_eos/SI_eos_neoP14_vs_adult.csv")
-
+DEG_to_csv_two_cond(obj,"NEO_P14_small_int","adult_small_int",FALSE,0.25,file.path(DEGs_tables_dir,"SI_eos_neoP14_vs_adult.csv"))
 
 ##### plot GOIs in volcano plot 
 ### CO
@@ -28,19 +25,19 @@ goi <- c("Cxcl2","Ccnl1","Vegfa","Adora2a","Il1r2","Ccl3","Wnt11","Cd274","Plac8
                        "Alox5","Mmp9","C3ar1","Ccr3","Cd37","Siglece","S100a10","Ccl6","Alox5ap","Siglecf",
                        "Csf1r","Itgb2","S100a11","H2-D1","Adam8") 
 
-volcano_DGE_showing_goi("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CO_SI_eos/CO_eos_neoP14_vs_adult.csv",
+volcano_DGE_showing_goi(file.path( DEGs_tables_dir,"CO_eos_neoP14_vs_adult.csv"),
                         0.1,0.05,"neo_colon","adult_colon",goi,
                         c("pink","lightblue","gray50"),c(-0.1,0.1) ,c(-5,5),
-                        "/scratch/khandl/Neonatal_eosinophils/figures/DEGs_CO_SI_eos/CO_eos_neoP14_vs_adult_volcano.pdf") 
+                       file.path(DEGs_plots_dir,"CO_eos_neoP14_vs_adult_volcano.svg") )
 
 ### SI
 goi <- c("Rara","Ier2","S100a10","Cd24a","Krt80","Tgfbi","Siglecg","Cd47","Csf1r","H2-D1",
          "Il1a","Adamdec1","Il1b","Il16","Il1r2","Ccrl2","Ccl3","Cd80","Cxcl2","Csf2rb","Dusp6")
 
-volcano_DGE_showing_goi("/scratch/khandl/Neonatal_eosinophils/data_files/DEGs_CO_SI_eos/SI_eos_neoP14_vs_adult.csv",
+volcano_DGE_showing_goi(file.path( DEGs_tables_dir,"SI_eos_neoP14_vs_adult.csv"),
                         0.1,0.05,"neo_colon","adult_colon",goi,
                         c("pink","lightblue","gray50"),c(-0.1,0.1) ,c(-5,5),
-                        "/scratch/khandl/Neonatal_eosinophils/figures/DEGs_CO_SI_eos/SI_eos_neoP14_vs_adult_volcano.pdf") 
+                        file.path(DEGs_plots_dir,"SI_eos_neoP14_vs_adult_volcano.pdf") )
 
 ##### plot GOIs in heatmap - plot average expression 
 ### extract only CO and SI
@@ -73,7 +70,5 @@ heatmap_goi_coi(obj, "condition",goi,"RNA",c("ITIM", "Enzymes", "Chemo_Cyto", "R
 ##### plot Fcgr related genes in DotPlot 
 sub <- subset(obj, idents = c("NEO_P14_colon","adult_colon"))
 p <- DotPlot(sub, features = c("Fcgr1","Fcgr3","Fcgr4","Fcrla","Sdhc","Fcgr2b"), scale = FALSE,cols = c("white","darkred"), dot.scale = 20) 
-ggsave("/scratch/khandl/Neonatal_eosinophils/figures/DEGs_CO_SI_eos/Dotplot_fcgr.svg", width = 8, height = 5, plot = p)
-
-
+ggsave(file.path(DEGs_plots_dir,"Dotplot_fcgr_colon_adult_neo.svg"), width = 8, height = 5, plot = p)
 

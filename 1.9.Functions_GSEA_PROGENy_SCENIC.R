@@ -45,7 +45,7 @@ singleseqset_to_csv <- function(
   res.stats_bp <- gse.res_bp[["GSEA_statistics"]]
   res.pvals_bp <- gse.res_bp[["GSEA_p_values"]]
   
-  res.pvals_bp <- apply(res.pvals_bp,2,p.adjust,method="fdr",n = length(rownames(res.pvals_bp))) #Correct for multiple comparisons
+  res.pvals_bp <- apply(res.pvals_bp,2,p.adjust,method=p_corr_method,n = length(rownames(res.pvals_bp))) #Correct for multiple comparisons
   
   res.pvals_df_bp <- as.data.frame(res.pvals_bp)
   
@@ -66,7 +66,7 @@ singleseqset_to_csv <- function(
   res.stats_R <- gse.res_R[["GSEA_statistics"]]
   res.pvals_R <- gse.res_R[["GSEA_p_values"]]
   
-  res.pvals_R <- apply(res.pvals_R,2,p.adjust,method="fdr") #Correct for multiple comparisons
+  res.pvals_R <- apply(res.pvals_R,2,p.adjust,method=p_corr_method) #Correct for multiple comparisons
   
   res.pvals_df_R <- as.data.frame(res.pvals_R)
   
@@ -87,7 +87,7 @@ singleseqset_to_csv <- function(
   res.stats_H <- gse.res_H[["GSEA_statistics"]]
   res.pvals_H <- gse.res_H[["GSEA_p_values"]]
   
-  res.pvals_H <- apply(res.pvals_H,2,p.adjust,method="fdr",n = length(rownames(res.pvals_H))) #Correct for multiple comparisons
+  res.pvals_H <- apply(res.pvals_H,2,p.adjust,method=p_corr_method,n = length(rownames(res.pvals_H))) #Correct for multiple comparisons
   
   res.pvals_df_H <- as.data.frame(res.pvals_H)
   
@@ -168,7 +168,7 @@ PROGENy_two_cond <- function(
                                 column_names_rot = 45,cluster_rows = FALSE, cluster_columns = FALSE,column_title = "GO terms"))
   
   ### statistics 
-  ## genearate a df with means and p-values for 
+  ## generate a df with means and p-values for 
   specific_signaling_df <- progeny_scores_df[progeny_scores_df$Pathway %in% "Androgen",]
   
   ## test weather the variance is different between the conditions

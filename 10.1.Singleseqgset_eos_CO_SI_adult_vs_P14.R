@@ -1,15 +1,13 @@
 ######### This code applies singleseqgset analysis to investigate enriched and depleted GO terms between adult and neo P14 eos from the CO and SI ##########
-# Figure 3
-
-##### Set up environment 
-setwd("/home/khandl")
 
 ##### link to libraries and functions
-source("~/Projects/Neonatal_eosinophils/1.1.Packages.R")
-source("~/Projects/Neonatal_eosinophils/1.7.Functions_GSEA_PROGENy_SCENIC.R")
+source("1.1.config.R")
+source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "1.2.Packages.R"))
+source(file.path(base_dir, "1.9.Functions_GSEA_PROGENy_SCENIC.R"))
 
 ### load seurat objects 
-obj <- readRDS("/data/khandl/Neonatal_eosinophils/seurat_objects/Neo_P14_adult_eos_CO_SI_LT.rds")
+obj <- readRDS(file.path(seurat_objects_dir,"Neo_P14_adult_eos_CO_SI_LT.rds"))
 
 ## extract only CO and SI 
 Idents(obj) <- "condition"
@@ -67,12 +65,12 @@ for (i in names(H.sets)) {
 all_sets <- c(H.sets, R.sets, bp.sets, kegg.sets)
 
 ##### run singleseqset 
-singleseqset_to_csv(obj,"condition","bonferroni", "/scratch/khandl/Neonatal_eosinophils/data_files/singleseqgset/singleseqgset_CO_SI_adult_and_neoP14_bonf.csv") 
+singleseqset_to_csv(obj,"condition","bonferroni", file.path(Signaling_pathways_tables_dir,"singleseqgset_CO_SI_adult_and_neoP14_bonf.csv"))
 
 ##### plot GO terms of interest 
 ### Effector functions 
 ## all clusters combined 
-go_terms <- read.csv("/scratch/khandl/Neonatal_eosinophils/data_files/singleseqgset/singleseqgset_CO_SI_adult_and_neoP14_bonf.csv")
+go_terms <- read.csv(file.path(Signaling_pathways_tables_dir,"singleseqgset_CO_SI_adult_and_neoP14_bonf.csv"))
 
 terms_oi <- c(#21 - Regulation of non-immune cell
   "GOBP_REGULATION_OF_ENDOTHELIAL_CELL_MIGRATION",
@@ -264,7 +262,7 @@ ComplexHeatmap::Heatmap(terms_mtx, name="z-score",
                         column_names_rot = 45,cluster_rows = FALSE, cluster_columns = FALSE,column_title = "GO terms")
 
 ### Cellualr processes 
-go_terms <- read.csv("/scratch/khandl/Neonatal_eosinophils/data_files/singleseqgset/singleseqgset_CO_SI_adult_and_neoP14_bonf.csv")
+go_terms <- read.csv(file.path(Signaling_pathways_tables_dir,"singleseqgset_CO_SI_adult_and_neoP14_bonf.csv"))
 
 terms_oi <- c(#37 - Action potential and ion transport 
   "GOBP_REGULATION_OF_SODIUM_ION_TRANSPORT",
@@ -397,7 +395,7 @@ ComplexHeatmap::Heatmap(terms_mtx, name="z-score",
                         column_names_rot = 45,cluster_rows = FALSE, cluster_columns = FALSE,column_title = "GO terms")
 
 ### Activated pathways 
-go_terms <- read.csv("/scratch/khandl/Neonatal_eosinophils/data_files/singleseqgset/singleseqgset_CO_SI_adult_and_neoP14_bonf.csv")
+go_terms <- read.csv(file.path(Signaling_pathways_tables_dir,"singleseqgset_CO_SI_adult_and_neoP14_bonf.csv"))
 
 terms_oi <- c(#2 - Mapk signaling 
   "REACTOME_NEGATIVE_FEEDBACK_REGULATION_OF_MAPK_PATHWAY",

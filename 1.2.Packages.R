@@ -32,6 +32,7 @@ library(ggpubr)
 library(ggpmisc)
 library(biomaRt)
 library(edgeR)
-library(condiment)
 library(purrr)
+library(DESeq2)
+library(pheatmap)
 

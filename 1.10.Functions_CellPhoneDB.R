@@ -8,47 +8,40 @@ Input_files_CellPhoneDB_generation_mm <- function(
     seurat_object,
     annotation_column,
     sample_name,
-    ouput_file_path
+    output_file_path
 ){
-  ### load human and mouse ensemble symbols
-  human <- useMart("ensembl", dataset = "hsapiens_gene_ensembl", host = "https://dec2021.archive.ensembl.org/") 
-  mouse <- useMart("ensembl", dataset = "mmusculus_gene_ensembl", host = "https://dec2021.archive.ensembl.org/")
-  
   ###generating counts file 
   #take raw data and normalize it
   count_raw_meta <- GetAssayData(object = seurat_object, layer = "counts")[,colnames(x = seurat_object)]
   count_norm_meta <- apply(count_raw_meta, 2, function(x) (x/sum(x))*10000)
-  genesV2 = getLDS(attributes = c("mgi_symbol"), filters = "mgi_symbol", values = rownames(count_norm_meta) , mart = mouse, 
+  genes = getLDS(attributes = c("mgi_symbol"), filters = "mgi_symbol", values = rownames(count_norm_meta) , mart = mouse, 
                    attributesL = c("hgnc_symbol","hgnc_id",'ensembl_gene_id'), martL = human, uniqueRows=T)
-  print(head(genesV2))
-  matrixA <- count_norm_meta[match(genesV2$MGI.symbol,rownames(count_norm_meta),nomatch=T),]
-  matrixB <- matrixA
-  matrixB$gene <- genesV2$Gene.stable.ID
-  rownames(matrixA) <- matrixB$gene
-  #save count matrix as text file 
-  write.table(matrixA, paste0(ouput_file_path,sample_name,"_count.txt"), sep='\t', quote=F)
-  ###generating meta file based on cell type annotation of Seurat object 
-  meta_data_meta <- cbind(rownames(seurat_object@meta.data), seurat_object@meta.data[,annotation_column, drop=F])  
-  #save meta file as text file 
-  write.table(meta_data_meta, paste0(ouput_file_path,sample_name,"_meta.txt"), sep='\t', quote=F, row.names=F)
-}
+ 
+  ## drop mouse genes without a human ortholog 
+  genes <- genes[!(is.na(genes$HGNC.symbol) | genes$HGNC.symbol == ""), , drop = FALSE]
+  
+  ## drop mouse genes that map to > 1 human gene, keep only the first one 
+  genes <- genes[!duplicated(genes$MGI.symbol), , drop = FALSE]
+  
+  ## map expression rows to ortholog rows, introduce NA if there is no match and drop these later  
+  matrixA <- count_norm_meta[match(genes$MGI.symbol,rownames(count_norm_meta),nomatch = NA_integer_),]
+  genes <- genes[!is.na(matrixA), , drop = FALSE]
+  matrixA <- matrixA[!is.na(matrixA)]
+  
+  ## add human symbols 
+  matrixB <- matrixA[idx, , drop = FALSE]
+  rownames(matrixB) <- genes$HGNC.symbol
+  
+  ## collaps duplicated human symbols (mouse genes sharing a human ortholog) by summing --> happens rarely 
+  matrixB <- rowsum(matrixB, group = rownames(matrixB), reorder = TRUE)
 
-### Function for generation of CellPhoneDB input files from human data 
-Input_files_CellPhoneDB_generation_hs <- function(
-    seurat_object,
-    annotation_column,
-    sample_name,
-    ouput_file_path
-){
-  ###generating counts file 
-  #take raw data and normalize it
-  count_raw_meta <- GetAssayData(object = seurat_object, layer = "counts")[,colnames(x = seurat_object)]
-  count_norm_meta <- apply(count_raw_meta, 2, function(x) (x/sum(x))*10000)
-  write.table(count_norm_meta, paste0(ouput_file_path,sample_name,"_count.txt"), sep='\t', quote=F)
-  ###generating meta file based on cell type annotation of Seurat object 
+  ## save count matrix as text file 
+  write.table(matrixA, paste0(output_file_path,sample_name,"_count.txt"), sep='\t', quote=F)
+  
+  ## generating meta file based on cell type annotation of Seurat object 
   meta_data_meta <- cbind(rownames(seurat_object@meta.data), seurat_object@meta.data[,annotation_column, drop=F])  
-  #save meta file as text file 
-  write.table(meta_data_meta, paste0(ouput_file_path,sample_name,"_meta.txt"), sep='\t', quote=F, row.names=F)
+  # save meta file as text file 
+  write.table(meta_data_meta, paste0(output_file_path,sample_name,"_meta.txt"), sep='\t', quote=F, row.names=F)
 }
 
 ### Function to compare two conditions 
