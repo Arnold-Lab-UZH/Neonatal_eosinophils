@@ -1,10 +1,10 @@
 ########## This code applies DGE analysis in CO CD45 negative cells neo P14 PHIL vs. WT  ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
-source(file.path(base_dir, "1.6.Functions_DEGs.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
+source(file.path(base_dir, "01.06.Functions_DEGs.R"))
 
 ### ##load objects 
 obj <- readRDS(file.path(seurat_objects_dir,"Neo_P14_CD45neg_colon_WT_PHIL_anno.rds"))

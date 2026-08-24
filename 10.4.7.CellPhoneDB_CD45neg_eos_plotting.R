@@ -1,10 +1,10 @@
 ########## This code plots at significant interactions between eosinophils and stromal/epithelial cells in both directions ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
-source(file.path(base_dir, "1.10.Functions_CellPhoneDB.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
+source(file.path(base_dir, "01.10.Functions_CellPhoneDB.R"))
 
 ##### interactions eos with stromal cells and epithelial 
 interactins_of_interest <- c("IL1A_IL1_receptor","IL1B_IL1_receptor","IL1RN_IL1_receptor","TGFB1_TGFBR3","TGFB1_TGFbeta_receptor2","TGFB1_TGFbeta_receptor1","TNF_TNFRSF1A","TNF_TNFRSF1B",

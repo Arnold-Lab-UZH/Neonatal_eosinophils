@@ -1,10 +1,10 @@
 ########## This code clusters and annotates cells from CD45 enriched colon neo P16 after eosinophil depletion at day 5, 7, and 10 (Cre+) and Cre- as a control ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
-source(file.path(base_dir,"1.5.Functions_annotation.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
+source(file.path(base_dir,"01.05.Functions_annotation.R"))
 
 ##### read in object 
 obj <- readRDS(file = file.path(seurat_objects_dir,"Neo_P16_iDT_CREpos_CREneg.rds"))

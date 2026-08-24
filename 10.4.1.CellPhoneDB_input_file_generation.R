@@ -1,10 +1,10 @@
 ########## This code generates input files for CellPhoneDB to predict ligand-receptor interactions between neonatal eosinophils and CD45neg cell types ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
-source(file.path(base_dir, "1.10.Functions_CellPhoneDB.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
+source(file.path(base_dir, "01.10.Functions_CellPhoneDB.R"))
 
 #### load human and mouse ensemble symbols
 human <- useMart("ensembl", dataset = "hsapiens_gene_ensembl", host = "https://dec2021.archive.ensembl.org/") 

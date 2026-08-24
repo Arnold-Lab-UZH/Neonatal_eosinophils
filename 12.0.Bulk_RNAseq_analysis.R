@@ -1,9 +1,9 @@
 ########## This code analyses bulk RNAseq data ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
 
 ##### read in all samples and combine them in one data frame 
 AD1 <- read.delim(file.path(raw_Mm_bulk_RNAseq_data,"AD1.txt"))

@@ -1,10 +1,10 @@
 ########## This code plots FACS data along a trajectory P0-Adult #####
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
-source(file.path(base_dir, "1.11.Functions_FACS_data_plotting.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
+source(file.path(base_dir, "01.11.Functions_FACS_data_plotting.R"))
 
 ##### generate plots for each measurement 
 measurements_all <- c("Eos_freq","CD63_MFI","MHCII_MFI","SigF_MFI","CD11b_MFI","CD80_MFI",

@@ -1,9 +1,9 @@
 ########## This code compares CO eosinophils between neo P16 after eos depletion (day 5, 7, 10) vs. neo P16 control without eos depletion ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
 
 ##### load objects 
 obj <- readRDS(file.path(seurat_objects_dir,"Neo_P16_iDT_CREpos_CREneg_anno.rds"))

@@ -1,12 +1,12 @@
 ########## This code compares BM derived precursors between adults and neo P14 ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
-source(file.path(base_dir, "1.4.Functions_preprocessing.R"))
-source(file.path(base_dir, "1.5.Functions_annotation.R"))
-source(file.path(base_dir, "1.6.Functions_DEGs.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
+source(file.path(base_dir, "01.04.Functions_preprocessing.R"))
+source(file.path(base_dir, "01.05.Functions_annotation.R"))
+source(file.path(base_dir, "01.06.Functions_DEGs.R"))
 
 ##### take BM data from Gurtner et al, and extract precursors from the BM from GEO GSE182001
 adult_bm_all <- create_seurat_from_condition_old_WTA_version(

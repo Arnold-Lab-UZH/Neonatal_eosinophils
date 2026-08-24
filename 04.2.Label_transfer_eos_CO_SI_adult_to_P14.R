@@ -1,10 +1,10 @@
 ########## This code uses label transfer to integrate neo P14 CO and SI eosinophils and adult eosinophils from Gurtner et al 2022 ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
-source(file.path(base_dir, "1.6.Functions_DEGs.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
+source(file.path(base_dir, "01.06.Functions_DEGs.R"))
 
 ##### read in R objects 
 adult_eosSS <- readRDS(file.path(seurat_objects_Gurtner_et_al,"eosinophils_steadystate.rds"))

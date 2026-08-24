@@ -1,10 +1,10 @@
 ########## This code looks at eosinophils subtype proportions between CB and PB ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
-source(file.path(base_dir, "1.7.Functions_cell_type_prop.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
+source(file.path(base_dir, "01.07.Functions_cell_type_prop.R"))
 
 ### load objects 
 obj <- readRDS(file.path(seurat_objects_dir,"CB_PB_eos_integrated_anno.rds"))

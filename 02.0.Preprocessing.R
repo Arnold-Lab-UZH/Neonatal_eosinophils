@@ -1,10 +1,10 @@
 ########## This code generates Seurat objects from BD Rhapsody Seven Bridges outputs ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source("1.3.Output_directory_output_folder_structure_generation.R")
-source(file.path(base_dir, "1.2.Packages.R"))
-source(file.path(base_dir,"1.4.Functions_preprocessing.R"))
+source("01.01.config.R")
+source("01.03.Output_directory_output_folder_structure_generation.R")
+source(file.path(base_dir, "01.02.Packages.R"))
+source(file.path(base_dir,"01.04.Functions_preprocessing.R"))
 
 ##### NEO P14 eosinophils Il5tg 
 ### colon and small intestine 

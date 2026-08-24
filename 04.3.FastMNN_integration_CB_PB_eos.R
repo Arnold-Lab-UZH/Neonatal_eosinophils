@@ -1,9 +1,9 @@
 ########## This code integrates and annotates CB and PB eosinophils ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
 
 ##### read in object 
 CB <- readRDS(file =file.path(seurat_objects_dir,"Cord_blood_anno.rds"))

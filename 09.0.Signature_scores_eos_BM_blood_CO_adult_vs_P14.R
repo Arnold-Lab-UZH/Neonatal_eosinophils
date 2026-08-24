@@ -1,10 +1,10 @@
 ########## This code compares gene signature scores between conditions ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
-source(file.path(base_dir, "1.8.Functions_signature_scores.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
+source(file.path(base_dir, "01.08.Functions_signature_scores.R"))
 
 ##### load objects 
 eos <- readRDS(file.path(seurat_objects_dir,"Neo_P14_adult_eos_CO_SI_blood_BM_spleen_LT.rds"))

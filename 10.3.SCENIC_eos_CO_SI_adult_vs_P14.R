@@ -1,10 +1,10 @@
 ######### This code rund SCENIC between adult and neo P14 eos from the CO and SI ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
-source(file.path(base_dir, "1.9.Functions_GSEA_PROGENy_SCENIC.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
+source(file.path(base_dir, "01.09.Functions_GSEA_PROGENy_SCENIC.R"))
 
 ### load seurat objects 
 obj <- readRDS(file.path(seurat_objects_dir,"Neo_P14_adult_eos_CO_SI_LT.rds"))

@@ -1,10 +1,10 @@
 ########## This code generates a csv file for each interacting pair and compares phil and wt  ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
-source(file.path(base_dir, "1.10.Functions_CellPhoneDB.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
+source(file.path(base_dir, "01.10.Functions_CellPhoneDB.R"))
 
 ##### read output file 
 interactions_oi <- read.delim(file.path(CellPhoneDB_neo_CD45neg_phil_output_tables_dir,"statistical_analysis_significant_means_05_20_2025_153041.txt"),check.names = FALSE)

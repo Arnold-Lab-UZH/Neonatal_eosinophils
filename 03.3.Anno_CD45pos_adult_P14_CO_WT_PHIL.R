@@ -1,10 +1,10 @@
 ########## This code clusters and annotates cells from CD45 enriched colon neo P14 and adult PHIL and WT datasets ##########
 
 ##### link to libraries and functions
-source("1.1.config.R")
-source(file.path(base_dir,"1.3.Output_directory_output_folder_structure_generation.R"))
-source(file.path(base_dir, "1.2.Packages.R"))
-source(file.path(base_dir,"1.5.Functions_annotation.R"))
+source("01.01.config.R")
+source(file.path(base_dir,"01.03.Output_directory_output_folder_structure_generation.R"))
+source(file.path(base_dir, "01.02.Packages.R"))
+source(file.path(base_dir,"01.05.Functions_annotation.R"))
 
 ##### load  object 
 obj <- readRDS(file = file.path(seurat_objects_dir,"Adult_and_Neo_P14_CD45enr_colon_WT_PHIL.rds"))
