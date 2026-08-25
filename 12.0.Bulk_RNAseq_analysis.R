@@ -37,26 +37,11 @@ merged <- merged %>% right_join(NEO1, by=c("target_id"))
 merged <- merged %>% right_join(NEO2, by=c("target_id"))
 merged <- merged %>% right_join(NEO3, by=c("target_id"))
 
-##### convert ensemble to gene IDs 
-mart <- useMart(biomart="ensembl", dataset="mmusculus_gene_ensembl", host = "https://useast.ensembl.org")
-attributes<-listAttributes(mart)
-gene_ids <- getBM(attributes = c("ensembl_transcript_id","external_gene_name"), mart = mart)
-
-colnames(merged) <- c("ensembl_transcript_id","AD1","AD2","AD3","ADBLD","NEO1","NEO2","NEO3")
-
-df<-merged%>%left_join(dplyr::select(gene_ids,1:2))
-df <- df[!is.na(df$external_gene_name), ]          # drop unmapped
-df <- df[!(is.na(df$external_gene_name) | df$external_gene_name == ""), ] # drop rows where the gene name is missing or empty  
-
-counts <- df[, c("AD1","AD2","AD3","ADBLD","NEO1","NEO2","NEO3")]
-
-# sum counts from duplicate/transcript rows, if multiple transcripts map to the same gene
-counts <- rowsum(counts, group = df$external_gene_name, reorder = TRUE)
-head(counts)
-
 ##### DEG analysis between AD and NEO using edgeR 
 #remove ADBLD 
-counts <- counts[,colnames(counts) %in% c("AD1","AD2","AD3","NEO1","NEO2","NEO3")]
+counts <- counts[,colnames(counts) %in% c("target_id","AD1","AD2","AD3","NEO1","NEO2","NEO3")]
+rownames(counts) <- counts$target_id
+counts$target_id <- NULL
 
 ### Create DGEList object
 # this adds the sample level, 1 for AD, 3 for NEO 
@@ -94,10 +79,20 @@ View(neo_vs_ad$table)
 
 write.table(neo_vs_ad$table, file = file.path(bulkRNAseq_tables_dir,"NEO_vs_AD.txt"))
 
-##### plot GOI of bulk data 
-# read in excel file 
-df <- neo_vs_ad$table
+### convert ensemble to gene IDs 
+mart <- useMart(biomart="ensembl", dataset="mmusculus_gene_ensembl")
+attributes<-listAttributes(mart)
+gene_ids <- getBM(attributes = c("ensembl_transcript_id","external_gene_name"), mart = mart)
 
+neo_vs_ad$table$ensembl_transcript_id <- rownames(neo_vs_ad$table)
+
+df<-neo_vs_ad$table%>%left_join(dplyr::select(gene_ids,1:2))
+df <- df[!is.na(df$external_gene_name), ]          # drop unmapped
+df <- df[!(is.na(df$external_gene_name) | df$external_gene_name == ""), ] # drop rows where the gene name is missing or empty  
+
+df <- df[!duplicated(df$external_gene_name), ]
+
+##### plot GOI of bulk data 
 df <- df %>% mutate(
   Expression = case_when(logFC >= 0.25 & FDR <= 0.05 ~ "neo",
                          logFC <= -0.25 & FDR <= 0.05 ~ "adult",
@@ -105,7 +100,7 @@ df <- df %>% mutate(
 
 df <- as.data.frame(df)
 
-rownames(df) <- df$Gene
+rownames(df) <- df$external_gene_name
 
 genes_of_interest <- c("Mmp25","Ccr3","Cd101","Itgax","Mmp27","Adam19","S100a9","Camp","Csf3r","Ccl6","Lyz2",
                        "S100a8","Ahr","Csf2rb2","Cd9","Cd274","Mmp9","Alox5ap","Itgam","Mmp8","Alox15","Siglecf",

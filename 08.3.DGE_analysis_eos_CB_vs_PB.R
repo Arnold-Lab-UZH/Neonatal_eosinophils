@@ -38,8 +38,7 @@ dds <- DESeqDataSetFromMatrix(countData = counts, colData = meta, design = ~ typ
 keep <- rowSums(counts(dds)) >= 10
 dds <- dds[keep, ]
 
-# reduced is the model without the type that we are testing, not the thing we are interested in 
-dds <- DESeq(dds, test = "LRT",reduced = ~ 1, useT = TRUE, minReplicatesForReplace = Inf)
+dds <- DESeq(dds)
 # defined CB vs. PB, so positive log2FC = high in CB 
 res <- results(dds, contrast = c("type","CB","PB"))
 res <- as.data.frame(res)
